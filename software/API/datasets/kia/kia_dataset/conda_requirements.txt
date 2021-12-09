@@ -1,0 +1,5 @@
+# Dependencies
+pytorch torchvision cudatoolkit=10.1 -c pytorch
+
+# 3D Visualization (optional)
+open3d=0.9 -c open3d-admin

@@ -1,0 +1,8 @@
+# Dependencies
+numpy
+opencv-contrib-python==4.4.0.42
+deeptech==20210210
+open3d==0.10.0.0
+tqdm==4.49.0
+
+git+ssh://git@gitlab.com/kia2/code/shared-libraries/dfki-dtk.git@dev
