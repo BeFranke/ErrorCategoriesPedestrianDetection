@@ -63,7 +63,7 @@ class COCOeval:
     # Microsoft COCO Toolbox.      version 2.0
     # Data, paper, and tutorials available at:  http://mscoco.org/
     # Code written by Piotr Dollar and Tsung-Yi Lin, 2015.
-    # Licensed under the Simplified BSD License [see coco/license.txt]
+    # Licensed under the Simplified BSD License [see license.txt]
     def __init__(self, cocoGt, cocoDt, iouType='bbox', env_pixel_thrs=0.4, occ_pixel_thr=0.5,
                  crowd_pixel_thrs=0.1, iou_match_thrs=0.5, foreground_thrs=200,
                  generate_dataset=False, split="val", output=None, output_path=None,

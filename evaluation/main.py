@@ -5,28 +5,30 @@ from time import strftime
 
 import pandas as pd
 
-from API.evaluator.eval import ErrorTypeEvaluator
+from evaluation.API.eval import ErrorTypeEvaluator
 
 
 def main(args):
+    # set folder containing one detection-json per evaluated model
     dt_folder = P.abspath(P.join(
         P.dirname(__file__),
         "..", "input", "dt",
         args.dt_folder
     ))
+    # set file containing labels
     gt_file = P.abspath(P.join(
         P.dirname(__file__),
         "..", "input", "gt",
         args.gt_file
     ))
-    assert P.isdir(dt_folder), f"'{dt_folder}' does not exist!"
+    assert P.isdir(dt_folder), f"'{dt_folder}/' does not exist!"
     assert P.isfile(gt_file), f"'{gt_file}' does not exist!"
+    # output dir should always be newly created and empty
     os.mkdir(args.out)
 
+    # run evaluation for each detection-file
     evaluator = ErrorTypeEvaluator(args.config, args.out)
-
     results = []
-
     for dt_json in filter(lambda s: P.splitext(s)[1] == ".json", os.listdir(dt_folder)):
         print(f"Processing {dt_json} ...")
         path = P.join(dt_folder, dt_json)
@@ -41,6 +43,7 @@ def main(args):
 
 
 if __name__ == "__main__":
+    # parse arguments and launch main
     ap = ArgumentParser()
     ap.add_argument("dt_folder", help="folder name containing detection files")
     ap.add_argument("gt_file", help="name of ground truth json")

@@ -4,7 +4,10 @@ from threading import Thread, Event
 import numpy as np
 
 
-def is_posix():
+def is_posix() -> bool:
+    """
+    @return: true iff host is a posix system
+    """
     try:
         import posix
         return True

@@ -15,7 +15,7 @@ except:
 
 out_dir = sorted(os.listdir("../output"))[-1]
 
-os.symlink(os.path.join("..", "output", out_dir), "eval")
+os.symlink(os.path.join("..", "output", out_dir, "raw"), "eval")
 
 
 def create_index():
