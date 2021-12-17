@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Error Visualization Tool</title>
+        <!-- Bootstrap -->
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+              crossorigin="anonymous">
+        <link rel="stylesheet" href="main.css">
+    </head>
+    <body>
+        <div id="wrapper">
+            <h2 id="caption">Image Name - Model ID</h2>
+            <div id="plottingArea">
+                <div class="stack">
+                    <canvas id="imageCanvas"></canvas>
+                    <canvas id="boxCanvas"></canvas>
+                </div>
+                <div id="legend-area">
+                    <div>
+                        <button type="button" id="lgndEnv"></button>
+                        <label>Environmental Occlusion (GT)</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndMxd"></button>
+                        <label>Ambiguous Occlusion (GT)</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndCrd"></button>
+                        <label>Crowd Occlusion (GT)</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndFgd"></button>
+                        <label>Clear Foreground (GT)</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndStd"></button>
+                        <label>Standard (GT)</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndIgn"></button>
+                        <label>Ignore (GT)</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndMtd"></button>
+                        <label>Localization Error</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndGst"></button>
+                        <label>Ghost Detection</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndScl"></button>
+                        <label>Scale Error</label>
+                    </div>
+                    <div>
+                        <button type="button" id="lgndMch"></button>
+                        <label>Matched Detection</label>
+                    </div>
+                </div>
+
+            </div>
+            <div id="user-interface">
+                <div class="slidecontainer">
+                    <label id="confLbl" for="confSlider">Confidence threshold: 0.5</label>
+                    <input autocomplete="off" type="range" min="0" max="100" value="50" class="slider" id="confSlider">
+                </div>
+                <div id="btnBar">
+                    <button type="button" id="btnBackward">Previous</button>
+                    <div id="chooser">
+                        <label for="model-selector">Choose a model:</label>
+                        <select name="model-selector" id="model-selector"></select>
+                    </div>
+                    <label id="xy">X=0, Y=0</label>
+                    <div>
+                        <input type="text" id="goTo" placeholder="Enter image id" list="imageList">
+                        <datalist id="imageList"></datalist>
+                        <button id="go">Go</button>
+                    </div>
+                    <button type="button" id="btnForward">Next</button>
+                </div>
+            </div>
+        </div>
+        <script src="main.js"></script>
+    </body>
+</html>
+

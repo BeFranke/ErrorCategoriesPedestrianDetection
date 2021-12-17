@@ -64,9 +64,9 @@ class COCOeval:
     # Data, paper, and tutorials available at:  http://mscoco.org/
     # Code written by Piotr Dollar and Tsung-Yi Lin, 2015.
     # Licensed under the Simplified BSD License [see coco/license.txt]
-    def __init__(self, cocoGt, cocoDt, iouType='segm', env_pixel_thrs=0.4, occ_pixel_thr=0.5,
+    def __init__(self, cocoGt, cocoDt, iouType='bbox', env_pixel_thrs=0.4, occ_pixel_thr=0.5,
                  crowd_pixel_thrs=0.1, iou_match_thrs=0.5, foreground_thrs=200,
-                 generate_dataset=False, split="val", output=None, output_filename=None,
+                 generate_dataset=False, split="val", output=None, output_path=None,
                  normalization="class"):
         """
         Initialize CocoEval using coco APIs for gt and dt
@@ -82,8 +82,10 @@ class COCOeval:
         self.crowd_pixel_thrs = crowd_pixel_thrs
         self.iou_match_thrs = iou_match_thrs
         self.foreground_thrs = foreground_thrs
-        self.segm_path = os.path.join(os.path.dirname(__file__), "", "..", "..", "..", "input", "datasets",
-                                      "cityscapes", "gtFine")
+
+        self.segm_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "..", "input", "segmentation")
+        )
 
         if not iouType:
             print('iouType not specified. use default iouType segm')
@@ -107,10 +109,8 @@ class COCOeval:
         self.generate_dataset = generate_dataset
         self.detections = []
         self.split = split
-        if output_filename is not None:
-            self.output_json_path = os.path.abspath(os.path.join(
-                os.path.dirname(__file__), "..", "..", "..", "output", output_filename
-            ))
+        if output_path is not None:
+            self.output_json_path = output_path
 
         self.output = output
         if output is not None:
@@ -127,7 +127,6 @@ class COCOeval:
                 'dts': dict()
             }
             update_recursive(self.output, update)
-            assert 'cityscapes_root' in self.output['meta']
 
     def _prepare(self, id_setup):
         '''
@@ -282,24 +281,16 @@ class COCOeval:
     def _get_instance_seg(self, imgId):
         img_dct = self.cocoGt.imgs[imgId]
         assert img_dct['id'] == imgId
-        img_name = img_dct['im_name']
         isegm_path = os.path.join(
-            self.segm_path, self.split,
-            # exploiting the fact that the folder name (the city) is contained in the file name
-            img_name.split("_")[0],
-            img_name.replace("_leftImg8bit", "_gtFine_instanceIds.png")
+            self.segm_path, img_dct["instance_map"]
         )
         return np.asarray(Image.open(isegm_path))
 
     def _get_semantic_seg(self, imgId):
         img_dct = self.cocoGt.imgs[imgId]
         assert img_dct['id'] == imgId
-        img_name = img_dct['im_name']
         isegm_path = os.path.join(
-            self.segm_path, self.split,
-            # exploiting the fact that the folder name (the city) is contained in the file name
-            img_name.split("_")[0],
-            img_name.replace("_leftImg8bit", "_gtFine_labelIds.png")
+            self.segm_path, img_dct["semantic_map"]
         )
         return np.asarray(Image.open(isegm_path))
 
@@ -592,22 +583,6 @@ class COCOeval:
 
                     if bstm == 1:
                         gtm[tind, bstg] = d['id']
-
-                    if self.generate_dataset and not dtIg[tind, dind]:
-                        dct = {
-                            'image_id': d['image_id'],
-                            'x1': int(np.round(np.clip(d['bbox'][0], a_min=0, a_max=2048))),
-                            'y1': int(np.round(np.clip(d['bbox'][1], a_min=0, a_max=1024))),
-                            'x2': int(np.round(np.clip(d['bbox'][0] + d['bbox'][2], a_min=0, a_max=2048))),
-                            'y2': int(np.round(np.clip(d['bbox'][1] + d['bbox'][3], a_min=0, a_max=1024))),
-                            'confidence': d['score'],
-                            'true_scale': gt[bstg]['bbox'][3],
-                            'predicted_scale': d['bbox'][3],
-                            'label': 1,
-                            'iou': ious[dind, bstg]
-                        }
-                        if dct["x2"] - dct["x1"] > 0 and dct["y2"] - dct["y1"] > 0:
-                            self.detections.append(dct)
 
                 # new FP definitions
                 center_aligned = self.find_center_aligned_off_scale(dt, gt, 0.25)
@@ -950,13 +925,6 @@ class COCOeval:
                     assert npig == n_crowd_gt + n_env_gt + n_foreground_gt + n_other_gt + n_mixed_gt
                     print(f"n_gt={npig}")
 
-        # save dataset if desired
-        if self.generate_dataset:
-            pd.DataFrame(self.detections).to_csv(
-                os.path.join(os.path.dirname(__file__), "", "..", "..", "..", "input", "datasets",
-                             "pedestrian_classification", self.split, "bounding_boxes.csv")
-            )
-
         if self.output is not None and self.output_json_path is not None:
             self.output_json_path += "___" + self.output['meta']['setup']
             with open(self.output_json_path, "w+") as fp:
@@ -995,6 +963,7 @@ class COCOeval:
         Compute and display summary metrics for evaluation results.
         Note this functin can *only* be applied on the default parameter setting
         '''
+        self.metrics = {}
 
         def _summarize(iouThr=None, maxDets=100):
             p = self.params
@@ -1006,6 +975,8 @@ class COCOeval:
                 if iouThr is None else '{:0.2f}'.format(iouThr)
             heightStr = '[{:0.0f}:{:0.0f}]'.format(p.HtRng[id_setup][0], p.HtRng[id_setup][1])
             occlStr = '[{:0.2f}:{:0.2f}]'.format(p.VisRng[id_setup][0], p.VisRng[id_setup][1])
+
+            self.metrics = {}
 
             mind = [i for i, mDet in enumerate(p.maxDets) if mDet == maxDets]
 
@@ -1034,18 +1005,23 @@ class COCOeval:
                 mean_s = np.mean(mean_s)
                 mean_s = np.exp(mean_s)
 
+            self.metrics["LAMR"] = mean_s
+
             la = np.exp(np.mean(np.log(la)))
             mean_e = np.exp(np.mean(np.log(e + 1e-6), axis=(1, 2, 3, 4)))
             fp_mrs = np.exp(np.mean(np.log(fp_freqs_mr[:, 0, :, 0, 0]), axis=1))
             minmr_idx = np.argmin(self.eval['mr'])
+            self.metrics["minMR"] = self.eval['mr'][minmr_idx]
+            self.metrics["FPPI"] = self.eval['fppi'][minmr_idx]
 
             print(iStr.format(titleStr, typeStr, setupStr, iouStr, heightStr, occlStr, mean_s * 100))
-            print("Log-Average Error Frequencies")
+            print("Filtered Log-Average Miss Rates")
             assert len(mean_e) == 5
             assert len(fp_mrs) == 3
             for e_i, s in zip(mean_e, ['crowdOcclusionErrors', 'envOcclusionErrors', 'foregroundErrors', 'otherErrors',
                                        'mixedOcclusionErrors']):
                 print(f"{s}: {e_i:.5f}")
+                self.metrics[f"FLAMR_{s}"] = e_i
             for e_i, s in zip(fp_mrs, ["multiDetectionErrors", "ghostDetectionErrors", "scaleErrors"]):
                 print(f"{s}: {e_i:.5f}")
 
@@ -1054,12 +1030,14 @@ class COCOeval:
                                    'Foreground Errors', 'Standard Errors', 'Mixed Occlusion Errors',
                                    "multiDetectionErrors", "ghostDetectionErrors", "scaleErrors"]):
                 print(f"Precision-{s}: {e_i:.5f}")
+                self.metrics[f"FAP_{s}"] = e_i
 
             print("Category-aware FPPI @ minMR:")
             for e_i, s in zip(self.eval['class_fppi_minmr'],
                               ["multiDetectionErrors", "ghostDetectionErrors", "scaleErrors"]):
 
                 print(f"{s}@minMR: {e_i:.5f}")
+                self.metrics[f"CatFPPI_{s}"] = e_i
 
             print("Other metrics:")
             print("FPPI Thrs -> Conf Thrs:")

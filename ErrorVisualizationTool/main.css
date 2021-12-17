@@ -1,0 +1,82 @@
+#plottingArea {
+    width: 100%;
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 85%;
+}
+#caption {
+    text-align: center;
+    z-index: 1;
+    position: relative;
+    height: 5%
+}
+#imageCanvas {
+    z-index: 1;
+    position:absolute;
+    left:0;
+    top:0;
+}
+#boxCanvas {
+    z-index: 2;
+    position: absolute;
+    left:0;
+    top:0;
+    background-color: transparent;
+}
+#user-interface {
+    z-index: 1;
+    position: relative;
+    height: 10%
+}
+#btnBar {
+    width: 100%;
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+#btnForward {
+    position: relative;
+    right: 1%;
+}
+#btnBackward {
+    position: relative;
+    left: 1%;
+}
+#legend {
+    position: relative;
+    right: 20%;
+}
+#wrapper {
+    height: 100%;
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+#xy {
+    display: block;
+    width: 10em;
+}
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+}
+#legend-area {
+    position: relative;
+    right: 1%;
+    display: flex;
+    flex-direction: column;
+}
+#legend-area div button {
+    height: 1em;
+    width: 3em;
+    top: -20%;
+    position: relative;
+}
