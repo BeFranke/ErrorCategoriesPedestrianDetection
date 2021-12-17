@@ -21,7 +21,7 @@ os.symlink(os.path.join("..", "output", out_dir), "eval")
 def create_index():
     dir = os.listdir("eval")
     with open("eval/index.txt", "w+") as fp:
-        fp.write("\n".join(filter(lambda x: ".csv" not in x, dir)))
+        fp.write("\n".join(filter(lambda x: ".csv" not in x and ".txt" not in x, dir)))
 
 
 try:
