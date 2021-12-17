@@ -41,7 +41,8 @@ class ErrorTypeEvaluator:
             iou_match_thrs=self.config.thresholds.iouMatchThrs,
             foreground_thrs=self.config.thresholds.foregroundThrs,
             output=output,
-            output_path=P.join(self.out_path.replace(".json", ""), d_fname),
+            output_path=P.join(self.out_path.replace(".json", ""),
+                               d_fname + "___" + str(self.config.thresholds.iouMatchThrs)),
         )
         coco.params.imgIds = imgIds
         coco.evaluate(id)
