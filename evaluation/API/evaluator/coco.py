@@ -52,10 +52,8 @@ from matplotlib.patches import Polygon
 import numpy as np
 import copy
 import itertools
-# from . import mask as maskUtils
 import os
 from collections import defaultdict
-import sys
 from urllib.request import urlretrieve
 
 class COCO:
@@ -221,70 +219,6 @@ class COCO:
         elif type(ids) == int:
             return [self.imgs[ids]]
 
-    def showAnns(self, anns):
-        """
-        Display the specified annotations.
-        :param anns (array of object): annotations to display
-        :return: None
-        """
-        if len(anns) == 0:
-            return 0
-        if 'segmentation' in anns[0] or 'keypoints' in anns[0]:
-            datasetType = 'instances'
-        elif 'caption' in anns[0]:
-            datasetType = 'captions'
-        else:
-            raise Exception('datasetType not supported')
-        if datasetType == 'instances':
-            ax = plt.gca()
-            ax.set_autoscale_on(False)
-            polygons = []
-            color = []
-            for ann in anns:
-                c = (np.random.random((1, 3))*0.6+0.4).tolist()[0]
-                if 'segmentation' in ann:
-                    if type(ann['segmentation']) == list:
-                        # polygon
-                        for seg in ann['segmentation']:
-                            poly = np.array(seg).reshape((int(len(seg)/2), 2))
-                            polygons.append(Polygon(poly))
-                            color.append(c)
-                    else:
-                        # mask
-                        t = self.imgs[ann['image_id']]
-                        if type(ann['segmentation']['counts']) == list:
-                            rle = maskUtils.frPyObjects([ann['segmentation']], t['height'], t['width'])
-                        else:
-                            rle = [ann['segmentation']]
-                        m = maskUtils.decode(rle)
-                        img = np.ones( (m.shape[0], m.shape[1], 3) )
-                        if ann['iscrowd'] == 1:
-                            color_mask = np.array([2.0,166.0,101.0])/255
-                        if ann['iscrowd'] == 0:
-                            color_mask = np.random.random((1, 3)).tolist()[0]
-                        for i in range(3):
-                            img[:,:,i] = color_mask[i]
-                        ax.imshow(np.dstack( (img, m*0.5) ))
-                if 'keypoints' in ann and type(ann['keypoints']) == list:
-                    # turn skeleton into zero-based index
-                    sks = np.array(self.loadCats(ann['category_id'])[0]['skeleton'])-1
-                    kp = np.array(ann['keypoints'])
-                    x = kp[0::3]
-                    y = kp[1::3]
-                    v = kp[2::3]
-                    for sk in sks:
-                        if np.all(v[sk]>0):
-                            plt.plot(x[sk],y[sk], linewidth=3, color=c)
-                    plt.plot(x[v>0], y[v>0],'o',markersize=8, markerfacecolor=c, markeredgecolor='k',markeredgewidth=2)
-                    plt.plot(x[v>1], y[v>1],'o',markersize=8, markerfacecolor=c, markeredgecolor=c, markeredgewidth=2)
-            p = PatchCollection(polygons, facecolor=color, linewidths=0, alpha=0.4)
-            ax.add_collection(p)
-            p = PatchCollection(polygons, facecolor='none', edgecolors=color, linewidths=2)
-            ax.add_collection(p)
-        elif datasetType == 'captions':
-            for ann in anns:
-                print(ann['caption'])
-
     def loadRes(self, resFile):
         """
         Load result file and return a result api object.
@@ -296,7 +230,7 @@ class COCO:
 
         # print('Loading and preparing results...')
         tic = time.time()
-        if type(resFile) == str or type(resFile) == unicode:
+        if type(resFile) == str:
             anns = json.load(open(resFile))
         elif type(resFile) == np.ndarray:
             anns = self.loadNumpyAnnotations(resFile)
@@ -327,26 +261,6 @@ class COCO:
                 #     pass
                 ann['id'] = id+1
                 ann['iscrowd'] = 0
-        elif 'segmentation' in anns[0]:
-            res.dataset['categories'] = copy.deepcopy(self.dataset['categories'])
-            for id, ann in enumerate(anns):
-                # now only support compressed RLE format as segmentation results
-                ann['area'] = maskUtils.area(ann['segmentation'])
-                if not 'bbox' in ann:
-                    ann['bbox'] = maskUtils.toBbox(ann['segmentation'])
-                ann['id'] = id+1
-                ann['iscrowd'] = 0
-        elif 'keypoints' in anns[0]:
-            res.dataset['categories'] = copy.deepcopy(self.dataset['categories'])
-            for id, ann in enumerate(anns):
-                s = ann['keypoints']
-                x = s[0::3]
-                y = s[1::3]
-                x0,x1,y0,y1 = np.min(x), np.max(x), np.min(y), np.max(y)
-                ann['area'] = (x1-x0)*(y1-y0)
-                ann['id'] = id + 1
-                ann['bbox'] = [x0,y0,x1-x0,y1-y0]
-        # print('DONE (t={:0.2f}s)'.format(time.time()- tic))
 
         res.dataset['annotations'] = anns
         res.createIndex()
@@ -398,33 +312,3 @@ class COCO:
                 'category_id': int(data[i, 6]),
                 }]
         return ann
-
-    def annToRLE(self, ann):
-        """
-        Convert annotation which can be polygons, uncompressed RLE to RLE.
-        :return: binary mask (numpy 2D array)
-        """
-        t = self.imgs[ann['image_id']]
-        h, w = t['height'], t['width']
-        segm = ann['segmentation']
-        if type(segm) == list:
-            # polygon -- a single object might consist of multiple parts
-            # we merge all parts into one mask rle code
-            rles = maskUtils.frPyObjects(segm, h, w)
-            rle = maskUtils.merge(rles)
-        elif type(segm['counts']) == list:
-            # uncompressed RLE
-            rle = maskUtils.frPyObjects(segm, h, w)
-        else:
-            # rle
-            rle = ann['segmentation']
-        return rle
-
-    def annToMask(self, ann):
-        """
-        Convert annotation which can be polygons, uncompressed RLE, or RLE to binary mask.
-        :return: binary mask (numpy 2D array)
-        """
-        rle = self.annToRLE(ann)
-        m = maskUtils.decode(rle)
-        return m

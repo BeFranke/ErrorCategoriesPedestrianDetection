@@ -8,6 +8,17 @@ import pandas as pd
 from evaluation.API.eval import ErrorTypeEvaluator
 
 
+def make_folder(fpath: str) -> None:
+    """
+    creates folder with subfolder structure
+    @param fpath: path to main folder
+    """
+    os.mkdir(fpath)
+    os.mkdir(P.join(fpath, "raw"))
+    os.mkdir(P.join(fpath, "plotting-raw"))
+    os.mkdir(P.join(fpath, "figures"))
+
+
 def main(args):
     # set folder containing one detection-json per evaluated model
     dt_folder = P.abspath(P.join(
@@ -24,7 +35,7 @@ def main(args):
     assert P.isdir(dt_folder), f"'{dt_folder}/' does not exist!"
     assert P.isfile(gt_file), f"'{gt_file}' does not exist!"
     # output dir should always be newly created and empty
-    os.mkdir(args.out)
+    make_folder(args.out)
 
     # run evaluation for each detection-file
     evaluator = ErrorTypeEvaluator(args.config, args.out)

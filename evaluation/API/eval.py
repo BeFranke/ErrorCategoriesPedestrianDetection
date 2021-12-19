@@ -61,8 +61,8 @@ class ErrorTypeEvaluator:
             iou_match_thrs=self.config.thresholds.iouMatchThrs,
             foreground_thrs=self.config.thresholds.foregroundThrs,
             output=output,
-            output_path=P.join(self.out_path.replace(".json", ""),
-                               d_fname + "___" + str(self.config.thresholds.iouMatchThrs))
+            output_path=P.join(self.out_path, "raw",
+                               d_fname.replace(".json", "") + "___" + str(self.config.thresholds.iouMatchThrs))
         )
         coco.params.imgIds = imgIds
         coco.evaluate(id)
@@ -79,9 +79,7 @@ class ErrorTypeEvaluator:
         @param cocoEval: cocoEval object that has been used for evaluation
             (evaluate, accumulate and summarize must have been called!)
         """
-        PLOT_OUTPUT_PATH = P.abspath(P.join(P.dirname(__file__), "", "..", "..", "output", "plotting",
-                                            strftime('%Y%m%d-%H%M%S')))
-        os.mkdir(PLOT_OUTPUT_PATH)
+        PLOT_OUTPUT_PATH = P.join(self.out_path, "plotting-raw")
         np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__fppi__{self.config.setting_id}.npy"),
                 cocoEval.eval["fppi"])
         np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__scores__{self.config.setting_id}.npy"),
