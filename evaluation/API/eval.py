@@ -71,6 +71,7 @@ class ErrorTypeEvaluator:
 
         self.save_plotting_data(coco)
 
+        coco.metrics["setting_id"] = id
         return coco.metrics
 
     def save_plotting_data(self, cocoEval: COCOeval) -> None:
@@ -84,6 +85,8 @@ class ErrorTypeEvaluator:
                 cocoEval.eval["fppi"])
         np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__scores__{self.config.setting_id}.npy"),
                 cocoEval.eval["dt_scores"])
+        np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__mr__{self.config.setting_id}.npy"),
+                cocoEval.eval["mr"])
         for i, (err_c, s) in enumerate(zip(cocoEval.eval['fp_ratio'], ['Poor Localization', 'Ghost Detections',
                                                                        'Scaling Errors'])):
             np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__fp_ratio_{s.replace(' ', '')}__"

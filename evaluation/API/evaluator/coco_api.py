@@ -1024,6 +1024,7 @@ class COCOeval:
                 self.metrics[f"FLAMR_{s}"] = e_i
             for e_i, s in zip(fp_mrs, ["multiDetectionErrors", "ghostDetectionErrors", "scaleErrors"]):
                 print(f"{s}: {e_i:.5f}")
+                self.metrics[f"FLAMR_{s}"] = e_i
 
             print("Category-aware Average Precision:")
             for e_i, s in zip(ap, ["Overall", 'Crowd Occlusion Errors', 'Environmental Occlusion Errors',
@@ -1084,7 +1085,7 @@ class Params:
         # self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.2,0.65], [0.2, 1e5 ** 2]]
         # self.SetupLbl = ['Reasonable', 'Reasonable_small','Reasonable_occ=heavy', 'All']
 
-        self.HtRng = [[50, 1e5 ** 2], [50, 75], [75, 100], [100, 1e5 ** 2], [20, 1e5 ** 2]]
+        self.HtRng = [[50, 1e5 ** 2], [50, 75], [75, 100], [100, 1e5 ** 2], [50, 1e5 ** 2]]
         self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.2, 1e5 ** 2]]
         self.SetupLbl = ['Reasonable', 'small', 'middle', 'large', 'All']
 

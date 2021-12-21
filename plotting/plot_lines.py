@@ -17,7 +17,7 @@ MODEL_MAP = {
     'parallel_2': 'Hourglass',
     'parallel_5': 'ResNeXt',
     'parallel_01': 'FusedDNN-1',
-    'parallel_02': 'FusedDNN-2'
+    # 'parallel_02': 'FusedDNN-2'
 }
 fp_map = {
     "GhostDetections": "Ghost Detections",
@@ -31,19 +31,19 @@ setting_str = lambda x: "All" if "4" in x else "Reasonable"
 
 
 _plot_path = P.abspath(P.join(
-    P.dirname(__file__), "..", "output", "plotting"
+    P.dirname(__file__), "..", "output"
 ))
 _source_folder = sorted(os.listdir(_plot_path))[-1]          # or write desired timestamp
-source_path = P.join(_plot_path, _source_folder)
+source_path = P.join(_plot_path, _source_folder, "plotting-raw")
 
 OUT_PATH = P.abspath(P.join(
-    P.dirname(__file__), "..", "output", "figures"
+    P.dirname(__file__), "..", "output", _source_folder, "figures"
 ))
 
 
 files = os.listdir(source_path)
-# settings = set(map(lambda s: s.split("__")[-1].split(".")[0], files))
-settings = ["[0]"]
+settings = set(map(lambda s: s.split("__")[-1].split(".")[0], files))
+
 models = MODEL_MAP.keys() # ["csp_1", "parallel_2", "parallel_0", "parallel_5"]
 fns = set(filter(lambda x: x != "fppi" and "Ghost" not in x and "Localization" not in x and "Scaling" not in x
                            and "fp_ratio" not in x and "recall" not in x and "precision" not in x
@@ -144,7 +144,7 @@ for setting in settings:
         ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
         ax.set_title(f"Ratio of {fp_map[y.replace('fp_ratio_', '')]}, {setting_str(setting)}")
         plt.legend()
-        plt.savefig(P.join(OUT_PATH, f"plots/fpratio-{y}-{setting}.pdf"))
+        plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
 
     for y in fp_counts:
@@ -171,7 +171,7 @@ for setting in settings:
         ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
         ax.set_title(f"Counts of {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
         plt.legend()
-        plt.savefig(P.join(OUT_PATH, f"fpcount-{y}-{setting}.pdf"))
+        plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
 
     for y in [None]:
