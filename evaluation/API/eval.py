@@ -60,6 +60,7 @@ class ErrorTypeEvaluator:
             crowd_pixel_thrs=self.config.thresholds.crowdPixelThrs,
             iou_match_thrs=self.config.thresholds.iouMatchThrs,
             foreground_thrs=self.config.thresholds.foregroundThrs,
+            ambfactor=self.config.ambFactor,
             output=output,
             output_path=P.join(self.out_path, "raw",
                                d_fname.replace(".json", "") + "___" + str(self.config.thresholds.iouMatchThrs))

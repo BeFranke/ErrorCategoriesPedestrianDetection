@@ -65,7 +65,7 @@ class COCOeval:
     # Code written by Piotr Dollar and Tsung-Yi Lin, 2015.
     # Licensed under the Simplified BSD License [see license.txt]
     def __init__(self, cocoGt, cocoDt, iouType='bbox', env_pixel_thrs=0.4, occ_pixel_thr=0.5,
-                 crowd_pixel_thrs=0.1, iou_match_thrs=0.5, foreground_thrs=200,
+                 crowd_pixel_thrs=0.1, iou_match_thrs=0.5, foreground_thrs=200, ambfactor=0.75,
                  generate_dataset=False, split="val", output=None, output_path=None,
                  normalization="class"):
         """
@@ -82,6 +82,7 @@ class COCOeval:
         self.crowd_pixel_thrs = crowd_pixel_thrs
         self.iou_match_thrs = iou_match_thrs
         self.foreground_thrs = foreground_thrs
+        self.ambfactor = ambfactor
 
         self.segm_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "..", "input", "datasets")
@@ -323,7 +324,7 @@ class COCOeval:
         return center_aligned_bitmap
 
     @staticmethod
-    def classify_gt(instance_seg, semanantic_seg, gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs,
+    def classify_gt(instance_seg, semanantic_seg, gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs, amb_factor,
                     pedestrian_class=24):
         """
         determine which GTs are occluded, and which kind of occlusion it is
@@ -355,17 +356,23 @@ class COCOeval:
             env_map = np.isin(semanantic_seg[y1:y2, x1:x2], OCCLUSION_CLASSES_SEGM)
             assert np.sum(instance_map) / np.sum(pedestrian_map) <= 1, "DEBUG triggered"
 
-            if np.sum(instance_map) / ((y2 - y1) * (x2 - x1)) < occ_thrs:
+            inst_vis_ratio = np.sum(instance_map) / ((y2 - y1) * (x2 - x1))
+            if inst_vis_ratio < occ_thrs:
                 assert np.sum(instance_map) > 0
-                env_occluded = (np.sum(env_map) / ((y2 - y1) * (x2 - x1))) > env_thrs
+                env_occl_ratio = np.sum(env_map) / ((y2 - y1) * (x2 - x1))
+                crowd_occl_ratio = 1 - (np.sum(instance_map) / np.sum(pedestrian_map))
+                env_occluded = env_occl_ratio > env_thrs
                 # crowd occlusion is measured by (area_instance / area_pedestrian) \in [0, 1]
-                crowd_occluded = 1 - (np.sum(instance_map) / np.sum(pedestrian_map)) > crowd_thrs
+                crowd_occluded = crowd_occl_ratio > crowd_thrs
                 assert np.sum(pedestrian_map) > 0
                 assert np.sum(np.logical_not(pedestrian_map)) > 0
+                ambiguous = env_occl_ratio > amb_factor * env_thrs and crowd_occl_ratio > amb_factor * crowd_thrs
+
             else:
                 crowd_occluded = env_occluded = False
+                ambiguous = False
 
-            mxd[i] = crowd_occluded and env_occluded
+            mxd[i] = (crowd_occluded and env_occluded) or ambiguous
             env[i] = env_occluded and not mxd[i]
             crd[i] = crowd_occluded and not mxd[i]
             assert not (env[i] and crd[i])
@@ -437,7 +444,8 @@ class COCOeval:
             self.env_pixel_thrs,
             self.occ_pixel_thr,
             self.crowd_pixel_thrs,
-            self.foreground_thrs
+            self.foreground_thrs,
+            self.ambfactor
         )
 
         for i, o in enumerate(gt):
