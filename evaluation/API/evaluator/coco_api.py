@@ -342,7 +342,7 @@ class COCOeval:
             if gt['ignore']:
                 continue
 
-            # Update 2021-12-22: This clipping is necessary to get correct boolean masks, but it is now enured to not
+            # Update 2021-12-22: This clipping is necessary to get correct boolean masks, but it is now ensured to not
             # distort the occlusion ratios
             x1 = np.clip(gt['bbox'][0], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
             y1 = np.clip(gt['bbox'][1], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
