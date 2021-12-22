@@ -48,7 +48,8 @@ def main(args):
         results.append(result)
 
     if results:
-        pd.DataFrame(results).to_csv(os.path.join(args.out, "results.csv"), index=False)
+        df = pd.DataFrame(results)
+        df.to_csv(os.path.join(args.out, "results.csv"), index=False)
     else:
         raise FileNotFoundError("No detection files could be found!")
 

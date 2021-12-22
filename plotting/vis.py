@@ -32,6 +32,8 @@ def make_frequency_bar_plot_fn(df, sstr):
 
     df.columns = ["Model", "Error Type", "Filtered Log-Average Miss Rate"]
 
+    order = df.groupby("Error Type")["Filtered Log-Average Miss Rate"].mean().sort_values(ascending=False).index.values
+
     sns.set_style("darkgrid")
     g = sns.catplot(
         data=df,
@@ -42,11 +44,12 @@ def make_frequency_bar_plot_fn(df, sstr):
         palette="dark",
         alpha=0.6,
         height=6,
-        legend=False
+        legend=False,
+        order=order
     )
     g.despine(left=True)
 
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper right')
     plt.xticks(rotation=45)
     # plt.title(f"FLAMR on {sstr} Evaluation (False Negatives)")
     plt.tight_layout()
