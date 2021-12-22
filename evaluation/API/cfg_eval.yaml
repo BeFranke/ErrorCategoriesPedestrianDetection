@@ -1,9 +1,9 @@
-setting_id: 4       # 0 is reasonable, 4 is All
+setting_id: 0       # 0 is reasonable, 4 is All
 
-thresholds: {
-  envPixelThrs: 0.5,          # previously alpha old 0.4
-  occPixelThrs: 0.5,           # new  old 0.4
-  crowdPixelThrs: 0.2,         # previously gamma   old 0.1
-  iouMatchThrs: 0.5,           # previously beta
-  foregroundThrs: 200,          # previously delta
-}
+thresholds:
+  envPixelThrs: 0.5          # previously alpha old 0.4
+  occPixelThrs: 0.5           # new  old 0.4
+  crowdPixelThrs: 0.2         # previously gamma   old 0.1
+  iouMatchThrs: 0.5          # previously beta
+  foregroundThrs: 200          # previously delta
+

@@ -336,26 +336,28 @@ class COCOeval:
         """
         # split into instance and class ids, source:
         # https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/json2instanceImg.py
-        class_id_map = instance_seg // 1000
+        # class_id_map = instance_seg // 1000
         env, crd, mxd, fgd, oth = [np.zeros(len(gts)) for _ in range(5)]
         for i, gt in enumerate(gts):
             if gt['ignore']:
                 continue
 
+            # Update 2021-12-22: This clipping is necessary to get correct boolean masks, but it is now enured to not
+            # distort the occlusion ratios
             x1 = np.clip(gt['bbox'][0], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
             y1 = np.clip(gt['bbox'][1], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
             x2 = np.clip(gt['bbox'][0] + gt['bbox'][2], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
             y2 = np.clip(gt['bbox'][1] + gt['bbox'][3], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
             id = gt['instance_id']
             assert gt['instance_id'] // 1000 == pedestrian_class
-            pedestrian_map = class_id_map[y1:y2, x1:x2] == pedestrian_class
+            pedestrian_map = semanantic_seg[y1:y2, x1:x2] == pedestrian_class
             instance_map = instance_seg[y1:y2, x1:x2] == id
             env_map = np.isin(semanantic_seg[y1:y2, x1:x2], OCCLUSION_CLASSES_SEGM)
             assert np.sum(instance_map) / np.sum(pedestrian_map) <= 1, "DEBUG triggered"
 
-            if np.sum(instance_map) / np.sum(np.ones_like(instance_map)) < occ_thrs:
+            if np.sum(instance_map) / ((y2 - y1) * (x2 - x1)) < occ_thrs:
                 assert np.sum(instance_map) > 0
-                env_occluded = (np.sum(env_map) / np.sum(np.ones_like(pedestrian_map))) > env_thrs
+                env_occluded = (np.sum(env_map) / ((y2 - y1) * (x2 - x1))) > env_thrs
                 # crowd occlusion is measured by (area_instance / area_pedestrian) \in [0, 1]
                 crowd_occluded = 1 - (np.sum(instance_map) / np.sum(pedestrian_map)) > crowd_thrs
                 assert np.sum(pedestrian_map) > 0
