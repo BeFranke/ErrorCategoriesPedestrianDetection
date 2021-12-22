@@ -24,8 +24,8 @@ def make_frequency_bar_plot_fn(df, sstr):
     varmap = {
         'FLAMR-crowdOcclusionErrors': "Crowd Occlusion",
         "FLAMR-envOcclusionErrors": "Environmental Occlusion",
-        "FLAMR-foregroundErrors": "Foreground",
-        "FLAMR-otherErrors": "Standard Errors",
+        "FLAMR-foregroundErrors": "Clear Foreground",
+        "FLAMR-otherErrors": "Standard Ground Truth",
         "FLAMR-mixedOcclusionErrors": "Ambiguous Occlusion"
     }
     df.variable = df.variable.map(lambda x: varmap[x] if x in varmap else x)
@@ -48,7 +48,7 @@ def make_frequency_bar_plot_fn(df, sstr):
 
     plt.legend(loc='upper left')
     plt.xticks(rotation=45)
-    plt.title(f"FLAMR on {sstr} Evaluation (False Negatives)")
+    # plt.title(f"FLAMR on {sstr} Evaluation (False Negatives)")
     plt.tight_layout()
     plt.savefig(P.join(OUT_PATH, f"fn-{sstr}.pdf"))
 
@@ -57,7 +57,7 @@ def make_frequency_bar_plot_fp(df, sstr):
     df = pd.melt(df, id_vars=["model"])
     df = df[np.isin(df.variable, ["FLAMR-ghostDetectionErrors", "FLAMR-multiDetectionErrors", "FLAMR-scaleErrors"])]
     varmap = {
-        "FLAMR-multiDetectionErrors": "Poor Localization",
+        "FLAMR-multiDetectionErrors": "Localization Errors",
         "FLAMR-ghostDetectionErrors": "Ghost Detections",
         "FLAMR-scalingErrors": "Scaling Errors"
     }
@@ -81,7 +81,7 @@ def make_frequency_bar_plot_fp(df, sstr):
 
     plt.legend(loc='upper right')
     plt.xticks(rotation=45)
-    plt.title(f"LAMR over FP class on {sstr} Evaluation (False Positives)")
+    # plt.title(f"LAMR over FP class on {sstr} Evaluation (False Positives)")
     plt.tight_layout()
     plt.savefig(P.join(OUT_PATH, f"fp-{sstr}.pdf"))
 

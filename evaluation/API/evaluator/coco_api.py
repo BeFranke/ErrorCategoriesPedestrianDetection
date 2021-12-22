@@ -84,7 +84,7 @@ class COCOeval:
         self.foreground_thrs = foreground_thrs
 
         self.segm_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "input", "segmentation")
+            os.path.join(os.path.dirname(__file__), "..", "..", "..", "input", "datasets")
         )
 
         if not iouType:
@@ -217,8 +217,8 @@ class COCOeval:
             dt = dt[0:p.maxDets[-1]]
 
         if p.iouType == 'segm':
-            g = [g['segmentation'] for g in gt]
-            d = [d['segmentation'] for d in dt]
+            g = [g['datasets'] for g in gt]
+            d = [d['datasets'] for d in dt]
         elif p.iouType == 'bbox':
             g = [g['bbox'] for g in gt]
             d = [d['bbox'] for d in dt]
@@ -327,7 +327,7 @@ class COCOeval:
                     pedestrian_class=24):
         """
         determine which GTs are occluded, and which kind of occlusion it is
-        :param instance_seg: np.ndarray that gives the images instance segmentation
+        :param instance_seg: np.ndarray that gives the images instance datasets
         :param gts: list of GTs
         :param env_thrs: threshold for environmental occlusion
         :param crowd_thrs: threshold for crowd occlusion
@@ -381,7 +381,7 @@ class COCOeval:
         perform evaluation for single category and image
         :return: dict (single image results)
 
-        Note for report: if no instance segmentation is available, the repulsion loss crowd-occlusion definition
+        Note for report: if no instance datasets is available, the repulsion loss crowd-occlusion definition
         could be swapped in
         '''
 

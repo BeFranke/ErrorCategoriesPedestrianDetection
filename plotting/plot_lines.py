@@ -85,7 +85,7 @@ for setting in settings:
         ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        ax.set_title(f"{y if 'Mixed' not in y else 'OtherOcclusionErrors'}, {setting_str(setting)}")
+        # ax.set_title(f"{y if 'Mixed' not in y else 'OtherOcclusionErrors'}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fn-mr-{y}-{setting}.pdf"))
         plt.pause(0.0001)       # without this, the plots do not show!
@@ -114,7 +114,7 @@ for setting in settings:
         ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        ax.set_title(f"Miss Rate over {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
+        # ax.set_title(f"Miss Rate over {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fp-mr-{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
@@ -142,7 +142,7 @@ for setting in settings:
         ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        ax.set_title(f"Ratio of {fp_map[y.replace('fp_ratio_', '')]}, {setting_str(setting)}")
+        # ax.set_title(f"Ratio of {fp_map[y.replace('fp_ratio_', '')]}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
@@ -169,7 +169,7 @@ for setting in settings:
         ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        ax.set_title(f"Counts of {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
+        # ax.set_title(f"Counts of {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
@@ -196,7 +196,7 @@ for setting in settings:
         ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        ax.set_title(f"Total FP Count, {setting_str(setting)}")
+        # ax.set_title(f"Total FP Count, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fpcount-overall-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!

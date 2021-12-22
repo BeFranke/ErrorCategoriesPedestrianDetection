@@ -1,3 +1,5 @@
-input/*
+input/dt/*
+input/gt/*
+input/datasets/*
 output/*
 !/**/.gitkeep

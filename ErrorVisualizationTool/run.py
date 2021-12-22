@@ -25,7 +25,7 @@ def create_index():
 
 
 try:
-    os.symlink("../input/segmentation/cityscapes", "cityscapes")
+    os.symlink("../input/datasets/cityscapes", "cityscapes")
 except FileExistsError:
     print("Symlinks to cityscapes exists!")
 
