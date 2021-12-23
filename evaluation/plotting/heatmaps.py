@@ -32,7 +32,6 @@ class FixedHeightResize(object):
         return FT.resize(img[None, :, :], size)
 
     def _calc_new_width(self, img):
-        # this is literally the stupidest thing i've ever wrote, but yaay... torch
         try:
             old_height,  old_width = img.size()
         except TypeError:

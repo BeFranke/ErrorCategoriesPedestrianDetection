@@ -5,7 +5,7 @@ from time import strftime
 
 import pandas as pd
 
-from evaluation.API.eval import ErrorTypeEvaluator
+from API.eval import ErrorTypeEvaluator
 
 
 def make_folder(fpath: str) -> None:

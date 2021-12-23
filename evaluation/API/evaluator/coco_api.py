@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from evaluation.API.utils.utils import update_recursive
+from ..utils.utils import update_recursive
 
 OCCLUSION_CLASSES_SEGM = list(set(range(11, 34)).union({4, 5}) - {16, 22, 23, 24, 25})
 

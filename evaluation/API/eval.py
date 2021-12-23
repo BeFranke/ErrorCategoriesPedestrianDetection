@@ -7,8 +7,8 @@ import yaml
 from easydict import EasyDict
 import numpy as np
 
-from evaluation.API.evaluator.coco_api import COCOeval
-from evaluation.API.evaluator.coco import COCO
+from .evaluator.coco_api import COCOeval
+from .evaluator.coco import COCO
 
 
 class ErrorTypeEvaluator:
