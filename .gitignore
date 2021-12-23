@@ -1,6 +1,12 @@
 input/dt/*
 input/gt/*
+!input/gt/cityscapes_val_enriched_gt.json
 input/datasets/*
 output/*
 *.png
 !/**/.gitkeep
+
+# Ignores for PyCharm and other JetBrains IDEs
+.idea/
+**/__pycache__/*
+*.pyc
