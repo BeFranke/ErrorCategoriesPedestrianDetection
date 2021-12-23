@@ -91,12 +91,12 @@ def make_frequency_bar_plot_fp(df, sstr):
 
 if __name__ == "__main__":
     _path = P.abspath(P.join(
-        P.dirname(__file__), "..", "output"
+        P.dirname(__file__), "..", "..", "output"
     ))
     _source_folder = sorted(os.listdir(_path))[-1]  # or write desired timestamp
     source_path = P.join(_path, _source_folder, "results.csv")
     OUT_PATH = P.abspath(P.join(
-        P.dirname(__file__), "..", "output", _source_folder, "figures"
+        P.dirname(__file__), "..", "..", "output", _source_folder, "figures"
     ))
 
 

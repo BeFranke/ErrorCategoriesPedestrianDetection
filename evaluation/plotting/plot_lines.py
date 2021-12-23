@@ -31,13 +31,13 @@ setting_str = lambda x: "All" if "4" in x else "Reasonable"
 
 
 _plot_path = P.abspath(P.join(
-    P.dirname(__file__), "..", "output"
+    P.dirname(__file__), "..", "..", "output"
 ))
 _source_folder = sorted(os.listdir(_plot_path))[-1]          # or write desired timestamp
 source_path = P.join(_plot_path, _source_folder, "plotting-raw")
 
 OUT_PATH = P.abspath(P.join(
-    P.dirname(__file__), "..", "output", _source_folder, "figures"
+    P.dirname(__file__), "../..", "output", _source_folder, "figures"
 ))
 
 

@@ -338,7 +338,7 @@ class COCOeval:
         # split into instance and class ids, source:
         # https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/json2instanceImg.py
         # class_id_map = instance_seg // 1000
-        env, crd, mxd, fgd, oth = [np.zeros(len(gts)) for _ in range(5)]
+        env, crd, mxd, fgd, oth = [np.zeros(len(gts), dtype=bool) for _ in range(5)]
         for i, gt in enumerate(gts):
             if gt['ignore']:
                 continue
@@ -381,6 +381,8 @@ class COCOeval:
                     fgd[i] = True
                 else:
                     oth[i] = True
+
+            assert gt["ignore"] or (env[i] ^ crd[i] ^ mxd[i] ^ fgd[i] ^ oth[i])
 
         return env, crd, mxd, fgd, oth
 
