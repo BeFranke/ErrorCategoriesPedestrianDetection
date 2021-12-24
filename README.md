@@ -99,7 +99,6 @@ An entry in the list of annotations should look like this:
 ```
 {
     "bbox"              :   [x,y,width,height : int],
-    "category_id"       :   int,
     "height"            :   int,
     "id"                :   int (1-based),
     "ignore"            :   0 or 1,

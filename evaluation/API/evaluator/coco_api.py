@@ -279,22 +279,6 @@ class COCOeval:
         dy2 = dt['bbox'][1] + dt['bbox'][3]
         return dx1 >= gx1 and dy1 >= gy1 and dx2 <= gx2 and dy2 <= gy2
 
-    def _get_instance_seg(self, imgId):
-        img_dct = self.cocoGt.imgs[imgId]
-        assert img_dct['id'] == imgId
-        isegm_path = os.path.join(
-            self.segm_path, img_dct["instance_map"]
-        )
-        return np.asarray(Image.open(isegm_path))
-
-    def _get_semantic_seg(self, imgId):
-        img_dct = self.cocoGt.imgs[imgId]
-        assert img_dct['id'] == imgId
-        isegm_path = os.path.join(
-            self.segm_path, img_dct["semantic_map"]
-        )
-        return np.asarray(Image.open(isegm_path))
-
     @staticmethod
     def find_center_aligned_off_scale(dts, gts, max_center_offset=0.2, height_deadzone=0.2):
         def get_center_bbox(gt, f):
@@ -324,8 +308,7 @@ class COCOeval:
         return center_aligned_bitmap
 
     @staticmethod
-    def classify_gt(instance_seg, semanantic_seg, gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs, amb_factor,
-                    pedestrian_class=24):
+    def classify_gt(gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs, amb_factor):
         """
         determine which GTs are occluded, and which kind of occlusion it is
         :param instance_seg: np.ndarray that gives the images instance datasets
@@ -444,8 +427,6 @@ class COCOeval:
         ]
 
         env_occluded, crowd_occluded, mixed_occluded, foreground_unocc, other = self.classify_gt(
-            self._get_instance_seg(imgId),
-            self._get_semantic_seg(imgId),
             gt,
             self.env_pixel_thrs,
             self.occ_pixel_thr,
