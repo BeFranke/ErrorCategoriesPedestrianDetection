@@ -13,6 +13,7 @@ Additionally, various plotting scripts are supplied to plot MR-FPPI curves, heat
 ```
 project
 │   README.md
+│   ecpd.yaml
 └───ErrorVisualizationTool
 │   │  {various internal files}
 │   │  run.py     
@@ -37,7 +38,6 @@ project
 
 ## Requirements
 
-TODO
 
 ## Datasets-folder
 ``input/datasets`` is meant for datasets. **The datasets are only needed for the Error VisualizationTool to function, 
