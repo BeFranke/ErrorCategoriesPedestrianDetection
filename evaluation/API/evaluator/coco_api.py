@@ -342,7 +342,7 @@ class COCOeval:
         for i, gt in enumerate(gts):
             if gt['ignore']:
                 continue
-
+            """
             # Update 2021-12-22: This clipping is necessary to get correct boolean masks, but it is now ensured to not
             # distort the occlusion ratios
             x1 = np.clip(gt['bbox'][0], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
@@ -355,17 +355,21 @@ class COCOeval:
             instance_map = instance_seg[y1:y2, x1:x2] == id
             env_map = np.isin(semanantic_seg[y1:y2, x1:x2], OCCLUSION_CLASSES_SEGM)
             assert np.sum(instance_map) / np.sum(pedestrian_map) <= 1, "DEBUG triggered"
+            """
 
-            inst_vis_ratio = np.sum(instance_map) / ((y2 - y1) * (x2 - x1))
+            # inst_vis_ratio = np.sum(instance_map) / ((y2 - y1) * (x2 - x1))
+            inst_vis_ratio = gt["inst_vis_ratio"]
+            env_occl_ratio = gt["env_occl_ratio"]
+            crowd_occl_ratio = gt["crowd_occl_ratio"]
             if inst_vis_ratio < occ_thrs:
-                assert np.sum(instance_map) > 0
-                env_occl_ratio = np.sum(env_map) / ((y2 - y1) * (x2 - x1))
-                crowd_occl_ratio = 1 - (np.sum(instance_map) / np.sum(pedestrian_map))
+                # assert np.sum(instance_map) > 0
+                # env_occl_ratio = np.sum(env_map) / ((y2 - y1) * (x2 - x1))
+                # crowd_occl_ratio = 1 - (np.sum(instance_map) / np.sum(pedestrian_map))
                 env_occluded = env_occl_ratio > env_thrs
                 # crowd occlusion is measured by (area_instance / area_pedestrian) \in [0, 1]
                 crowd_occluded = crowd_occl_ratio > crowd_thrs
-                assert np.sum(pedestrian_map) > 0
-                assert np.sum(np.logical_not(pedestrian_map)) > 0
+                # assert np.sum(pedestrian_map) > 0
+                # assert np.sum(np.logical_not(pedestrian_map)) > 0
                 ambiguous = env_occl_ratio > amb_factor * env_thrs and crowd_occl_ratio > amb_factor * crowd_thrs
 
             else:
