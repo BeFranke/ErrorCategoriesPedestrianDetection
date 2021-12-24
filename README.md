@@ -37,7 +37,7 @@ project
 ```
 
 ## Requirements
-
+See ``requirements.txt``.
 
 ## Datasets-folder
 ``input/datasets`` is meant for datasets. **The datasets are only needed for the Error VisualizationTool to function, 
@@ -161,9 +161,34 @@ in ``output``.
 
 ## Output Format
 
-TODO
+By default, each evaluation will create a new, tim-stamped folder in ```output/```, containing the following 
+subdirectories:
+
+```
+project
+└─── output
+│   └─── {YYYYMMDD-hhmmss}
+│        │      results.csv
+│        └───   figures
+│        └───   plotting-raw
+│        └───   raw
+...
+```
+
+The evaluation results are saved to ``results.csv``, where each line will contain the model name 
+(= the name of the detection json file minus the file extension), the evaluation setting as int
+(currently, reasonable=0 and all=4 are supported), LAMR. and a number of metrics over the error categories.
+For each detection json file present in the specified input folder, the ``results.csv`` will contain one line.
+
+
+``plotting-raw`` and ``raw`` contain raw information that is used by the plotting scripts and the 
+error visualization tool. ``figures`` is the folder where the plotting scripts will place the generated plots, if run.
 
 ## Error Visualization Tool
+
+TODO
+
+## Plotting Scripts
 
 TODO
 
