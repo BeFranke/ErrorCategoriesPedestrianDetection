@@ -40,17 +40,15 @@ project
 TODO
 
 ## Datasets-folder
-``input/datasets`` is meant for datasets. At very least, the evaluated dataset should contain ground truth as
-**instance segmentation maps** and **semantic segmentation maps**.
-For the error visualization tool to work, it also needs to contain the RGB-images of the dataset.
-For example, to use cityscapes/citypersons, it should be placed like this:
+``input/datasets`` is meant for datasets. **The datasets are only needed for the Error VisualizationTool to function, 
+for the evaluation all data is read from the supplied json files.**
+Currently, the error visualization tool only supports the *citypersons* dataset, 
+which would have to be placed like this:
 ```
 project
 └─── input
 │   └─── datasets
 │        └─── cityscapes
-│             └─── gtBboxCityPersons
-│             └─── gtFine
 │             └─── leftImg8bit
 ...
 ```
@@ -65,6 +63,7 @@ To evaluate a model on a dataset, 2 json files are to be supplied by the user:
 Path: ``input/gt/{split}_{dataset_name}.json``
 
 This is a json file summarizing the dataset, loosely based on the MS-COCO format with some extra keys.
+An example file for citypersons is already provided.
 The format is explained below:
 ```
 {
@@ -90,9 +89,7 @@ An entry in the list of images should look like this:
     "height"        :   int,
     "width"         :   int
     "id":           :   int (1-based),
-    "im_name"       :   string (filename without extension or path),
-    "instance_map"  :   string (exact path to the corresponding instance map relative to the datasets-folder),
-    "semantic_map"  :   string (exact path to the corresponding semantic map relative to the datasets-folder)
+    "im_name"       :   string (filename without extension or path)
 }
 ```
 
@@ -101,20 +98,27 @@ An entry in the list of annotations should look like this:
 
 ```
 {
-    "bbox"          :   [x,y,width,height : int],
-    "category_id"   :   int,
-    "height"        :   int,
-    "id"            :   int (1-based),
-    "ignore"        :   0 or 1,
-    "image_id"      :   int (1-based),
-    "instance_id"   :   int,
-    "vis_bbox"      :   [x,y,width,height : int],
-    "vis_ratio"     :   float 
+    "bbox"              :   [x,y,width,height : int],
+    "category_id"       :   int,
+    "height"            :   int,
+    "id"                :   int (1-based),
+    "ignore"            :   0 or 1,
+    "image_id"          :   int (1-based),
+    "vis_bbox"          :   [x,y,width,height : int],
+    "vis_ratio"         :   float,
+    "crowd_occl_ratio"  :   float,
+    "env_occl_ratio"    :   float,
+    "inst_vis_ratio"    :   float
 }
 ```
 
-**It is very important that the instance id given in the annotation corresponds to the actual instance id used in the 
-instance map!**
+Compared to the MS-COCO format, the following keys are added:
+
+- ``crowd_occl_ratio``: Ratio of semantic pedestrian pixels inside the bounding box that belong to other pedestrians to pedestrian pixels that belong to the referenced pedestrian
+- ``env_occl_ratio``: Area occupied by potentially occluding objects inside the bounding box over area of bounding box
+- ``inst_vis_ratio``: Area occupied by pixels belonging to the actual pedestrian over area of bounding box
+
+Other keys on any level of the json structure may be specified and will be ignored by the framework.
 
 ### Detection File
 
@@ -132,6 +136,8 @@ This file gives the detections of the model in unmodified MS-COCO format:
 ```
 
 (Source: https://cocodataset.org/#format-results)
+
+Other keys on any level of the json structure may be specified and will be ignored by the framework.
 
 ## Running an evaluation
 
