@@ -62,9 +62,9 @@ def make_frequency_bar_plot_fp(df, sstr):
     varmap = {
         "FLAMR-multiDetectionErrors": "Localization Errors",
         "FLAMR-ghostDetectionErrors": "Ghost Detections",
-        "FLAMR-scalingErrors": "Scaling Errors"
+        "FLAMR-scaleErrors": "Scaling Errors"
     }
-    df.variable = df.variable.map(lambda x: varmap[x] if x in varmap else x)
+    df.variable = df.variable.map(lambda x: varmap[x])
 
     df.columns = ["Model", "Error Type", "Filtered Log-Average Miss Rate"]
 

@@ -8,4 +8,5 @@ thresholds:
   crowdPixelThrs: 0.35
   iouMatchThrs: 0.5
   foregroundThrs: 200
+  centerAlignedThreshold: 0.2
 

@@ -66,7 +66,7 @@ class COCOeval:
     # Licensed under the Simplified BSD License [see license.txt]
     def __init__(self, cocoGt, cocoDt, iouType='bbox', env_pixel_thrs=0.4, occ_pixel_thr=0.5,
                  crowd_pixel_thrs=0.1, iou_match_thrs=0.5, foreground_thrs=200, ambfactor=0.75,
-                 generate_dataset=False, split="val", output=None, output_path=None,
+                 center_aligned_threshold=0.1, generate_dataset=False, split="val", output=None, output_path=None,
                  normalization="class"):
         """
         Initialize CocoEval using coco APIs for gt and dt
@@ -75,6 +75,7 @@ class COCOeval:
         :return: None
 
         """
+        self.center_aligned_threshold = center_aligned_threshold
         assert normalization in ["total", "class"]
         self.normalization = normalization
         self.env_pixel_thrs = env_pixel_thrs
@@ -280,7 +281,7 @@ class COCOeval:
         return dx1 >= gx1 and dy1 >= gy1 and dx2 <= gx2 and dy2 <= gy2
 
     @staticmethod
-    def find_center_aligned_off_scale(dts, gts, max_center_offset=0.2, height_deadzone=0.2):
+    def find_center_aligned_off_scale(dts, gts, max_center_offset=0.2):
         def get_center_bbox(gt, f):
             x1, y1, w, h = gt['bbox']
             x_center, y_center = x1 + w / 2, y1 + h / 2
@@ -298,12 +299,9 @@ class COCOeval:
                     dt['bbox'][0] + dt['bbox'][2] / 2,
                     dt['bbox'][1] + dt['bbox'][3] / 2
                 ])
-                h_dt = dt["height"]
-                height_off = (np.abs(h_gt - h_dt) / h_gt) > height_deadzone
                 center_aligned_bitmap[i] = center_aligned_bitmap[i] or \
                                            (gt_center_box[0] <= dt_center[0] <= gt_center_box[2] and
-                                            gt_center_box[1] <= dt_center[1] <= gt_center_box[3] and
-                                            height_off)
+                                            gt_center_box[1] <= dt_center[1] <= gt_center_box[3])
 
         return center_aligned_bitmap
 
@@ -582,7 +580,7 @@ class COCOeval:
                         gtm[tind, bstg] = d['id']
 
                 # new FP definitions
-                center_aligned = self.find_center_aligned_off_scale(dt, gt, 0.25)
+                center_aligned = self.find_center_aligned_off_scale(dt, gt, self.center_aligned_threshold)
                 assert len(center_aligned) == len(dtm[tind]) == len(intersects_gt_nums[tind])
                 scaling_errors[tind] = np.logical_and.reduce((
                     np.logical_not(dtm[tind]),

@@ -72,8 +72,6 @@ def mini_eval(coco, imgId):
     gtind = np.argsort([g['_ignore'] for g in gt], kind='mergesort')
     gt = [gt[i] for i in gtind]
     return coco.classify_gt(
-        coco._get_instance_seg(imgId),
-        coco._get_semantic_seg(imgId),
         gt,
         coco.env_pixel_thrs,
         coco.occ_pixel_thr,

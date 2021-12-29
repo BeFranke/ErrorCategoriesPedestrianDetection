@@ -91,7 +91,7 @@ class ErrorVisualizer {
         this.redraw(path, 0.5);
     }
     getImagePathFromId(id) {
-        return base_path + this.json.imgs[id].im_name.split("_")[0] + "/" + this.json.imgs[id].im_name + ".png"
+        return base_path + this.json.imgs[id].im_name.split("_")[0] + "/" + this.json.imgs[id].im_name;
     }
     _drawBoundingBoxes(confThres) {
         const gts = this.json.gts[this.curImgId];
