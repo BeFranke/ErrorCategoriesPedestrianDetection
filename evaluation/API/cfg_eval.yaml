@@ -1,6 +1,7 @@
 setting_id: 0       # 0 is reasonable, 4 is All
 
 ambFactor: 0.75
+locIouReduction: 0.5
 
 thresholds:
   envPixelThrs: 0.5
