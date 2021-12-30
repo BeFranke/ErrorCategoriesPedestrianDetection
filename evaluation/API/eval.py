@@ -62,7 +62,7 @@ class ErrorTypeEvaluator:
             foreground_thrs=self.config.thresholds.foregroundThrs,
             ambfactor=self.config.ambFactor,
             center_aligned_threshold=self.config.thresholds.centerAlignedThreshold,
-            loc_iou_reduction=self.config.locIouReduction,
+            reduced_iou_threshold=self.config.threshold.reducedIouThreshold,
             output=output,
             output_path=P.join(self.out_path, "raw",
                                d_fname.replace(".json", "") + "___" + str(self.config.thresholds.iouMatchThrs))

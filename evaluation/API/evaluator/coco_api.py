@@ -66,7 +66,7 @@ class COCOeval:
     # Licensed under the Simplified BSD License [see license.txt]
     def __init__(self, cocoGt, cocoDt, iouType='bbox', env_pixel_thrs=0.4, occ_pixel_thr=0.5,
                  crowd_pixel_thrs=0.1, iou_match_thrs=0.5, foreground_thrs=200, ambfactor=0.75,
-                 center_aligned_threshold=0.1, loc_iou_reduction=0.5, split="val", output=None,
+                 center_aligned_threshold=0.1, reduced_iou_threshold=0.25, split="val", output=None,
                  output_path=None, normalization="class"):
         """
         Initialize CocoEval using coco APIs for gt and dt
@@ -75,7 +75,7 @@ class COCOeval:
         :return: None
 
         """
-        self.loc_iou_reduction = loc_iou_reduction
+        self.reduced_iou_threshold = reduced_iou_threshold
         self.center_aligned_threshold = center_aligned_threshold
         assert normalization in ["total", "class"]
         self.normalization = normalization
@@ -597,7 +597,7 @@ class COCOeval:
                 # ious_matched[:, np.logical_not(gtm[tind].astype(bool))] = 0
                 multi_detection_errors[tind] = np.logical_and.reduce((
                     np.logical_not(dtm[tind]),
-                    np.max(ious_matched, axis=1, initial=0) > (self.iou_match_thrs * self.loc_iou_reduction),
+                    np.max(ious_matched, axis=1, initial=0) > self.reduced_iou_threshold,
                     ~ scaling_errors[tind]
                 ))
                 ghost_detection_errors[tind] = np.logical_and.reduce((
