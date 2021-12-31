@@ -109,7 +109,6 @@ class COCOeval:
         if cocoGt is not None:
             self.params.imgIds = sorted(cocoGt.getImgIds())
             self.params.catIds = sorted(cocoGt.getCatIds())
-        self.generate_dataset = generate_dataset
         self.detections = []
         self.split = split
         if output_path is not None:
@@ -492,23 +491,6 @@ class COCOeval:
                         if self.output is not None and 'matched_dt' not in self.output['gts'][imgId][gind]:
                             self.output['gts'][imgId][gind]['matched_dt'] = 0
 
-                        if self.generate_dataset and tind == 0 and dind == 0 and not g['ignore']:
-                            # only append gts once
-                            dct = {
-                                'image_id': g['image_id'],
-                                'x1': int(np.round(np.clip(g['bbox'][0], a_min=0, a_max=2048))),
-                                'y1': int(np.round(np.clip(g['bbox'][1], a_min=0, a_max=1024))),
-                                'x2': int(np.round(np.clip(g['bbox'][0] + g['bbox'][2], a_min=0, a_max=2048))),
-                                'y2': int(np.round(np.clip(g['bbox'][1] + g['bbox'][3], a_min=0, a_max=1024))),
-                                'confidence': 1,
-                                'true_scale': g['bbox'][3],
-                                'predicted_scale': g['bbox'][3],
-                                'label': 1,
-                                'iou': 1,
-                            }
-                            if dct["x2"] - dct["x1"] > 0 and dct["y2"] - dct["y1"] > 0:
-                                self.detections.append(dct)
-
                         m = gtm[tind, gind]
                         if ious[dind, gind] > t:
                             intersects_gt_nums[tind, dind] = gind
@@ -531,25 +513,6 @@ class COCOeval:
                             bstm = -1
 
                     if bstg == -2:
-                        if self.generate_dataset and not dtIg[tind, dind]:
-                            dct = {
-                                'image_id': d['image_id'],
-                                'x1': int(np.round(np.clip(d['bbox'][0], a_min=0, a_max=2048))),
-                                'y1': int(np.round(np.clip(d['bbox'][1], a_min=0, a_max=1024))),
-                                'x2': int(np.round(np.clip(d['bbox'][0] + d['bbox'][2], a_min=0, a_max=2048))),
-                                'y2': int(np.round(np.clip(d['bbox'][1] + d['bbox'][3], a_min=0, a_max=1024))),
-                                'confidence': d['score'],
-                                'true_scale': gt[
-                                    intersects_gt_nums[tind, dind]
-                                ]['bbox'][3] if intersects_gt_nums[tind, dind] != -1 else 0,
-                                'predicted_scale': d['bbox'][3],
-                                # 'label': int(intersects_gt_nums[tind, dind] != -1)
-                                'label': 0,
-                                'iou': ious[dind].max() if len(ious[dind]) > 0 else 0
-                            }
-                            if dct["x2"] - dct["x1"] > 0 and dct["y2"] - dct["y1"] > 0:
-                                self.detections.append(dct)
-
                         continue
 
                     dtIg[tind, dind] = gtIg[bstg]

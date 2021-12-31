@@ -62,7 +62,7 @@ class ErrorTypeEvaluator:
             foreground_thrs=self.config.thresholds.foregroundThrs,
             ambfactor=self.config.ambFactor,
             center_aligned_threshold=self.config.thresholds.centerAlignedThreshold,
-            reduced_iou_threshold=self.config.threshold.reducedIouThreshold,
+            reduced_iou_threshold=self.config.thresholds.reducedIouThreshold,
             output=output,
             output_path=P.join(self.out_path, "raw",
                                d_fname.replace(".json", "") + "___" + str(self.config.thresholds.iouMatchThrs))
@@ -75,6 +75,7 @@ class ErrorTypeEvaluator:
         self.save_plotting_data(coco)
 
         coco.metrics["setting_id"] = id
+        coco.metrics["iouThreshold"] = self.config.thresholds.iouMatchThrs
         return coco.metrics
 
     def save_plotting_data(self, cocoEval: COCOeval) -> None:
