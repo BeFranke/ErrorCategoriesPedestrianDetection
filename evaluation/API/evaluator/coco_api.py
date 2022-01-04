@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import time
+import warnings
 from collections import defaultdict
 
 import numpy as np
@@ -305,8 +306,31 @@ class COCOeval:
 
         return center_aligned_bitmap
 
-    @staticmethod
-    def classify_gt(gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs, amb_factor):
+    def _get_instance_seg(self, imgId):
+        img_dct = self.cocoGt.imgs[imgId]
+        assert img_dct['id'] == imgId
+        img_name = img_dct['im_name']
+        isegm_path = os.path.join(
+            self.segm_path, "cityscapes", "gtFine", self.split,
+            # exploiting the fact that the folder name (the city) is contained in the file name
+            img_name.split("_")[0],
+            img_name.replace("_leftImg8bit", "_gtFine_instanceIds.png")
+        )
+        return np.asarray(Image.open(isegm_path))
+
+    def _get_semantic_seg(self, imgId):
+        img_dct = self.cocoGt.imgs[imgId]
+        assert img_dct['id'] == imgId
+        img_name = img_dct['im_name']
+        isegm_path = os.path.join(
+            self.segm_path, "cityscapes", "gtFine", self.split,
+            # exploiting the fact that the folder name (the city) is contained in the file name
+            img_name.split("_")[0],
+            img_name.replace("_leftImg8bit", "_gtFine_labelIds.png")
+        )
+        return np.asarray(Image.open(isegm_path))
+
+    def classify_gt(self, gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs, amb_factor, imgId):
         """
         determine which GTs are occluded, and which kind of occlusion it is
         :param instance_seg: np.ndarray that gives the images instance datasets
@@ -323,29 +347,36 @@ class COCOeval:
         for i, gt in enumerate(gts):
             if gt['ignore']:
                 continue
-            """
-            # Update 2021-12-22: This clipping is necessary to get correct boolean masks, but it is now ensured to not
-            # distort the occlusion ratios
-            x1 = np.clip(gt['bbox'][0], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
-            y1 = np.clip(gt['bbox'][1], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
-            x2 = np.clip(gt['bbox'][0] + gt['bbox'][2], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
-            y2 = np.clip(gt['bbox'][1] + gt['bbox'][3], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
-            id = gt['instance_id']
-            assert gt['instance_id'] // 1000 == pedestrian_class
-            pedestrian_map = semanantic_seg[y1:y2, x1:x2] == pedestrian_class
-            instance_map = instance_seg[y1:y2, x1:x2] == id
-            env_map = np.isin(semanantic_seg[y1:y2, x1:x2], OCCLUSION_CLASSES_SEGM)
-            assert np.sum(instance_map) / np.sum(pedestrian_map) <= 1, "DEBUG triggered"
-            """
+            try:
+                inst_vis_ratio = gt["inst_vis_ratio"]
+                env_occl_ratio = gt["env_occl_ratio"]
+                crowd_occl_ratio = gt["crowd_occl_ratio"]
+            except KeyError as e:
+                if os.environ.get("COCO_FALLBACK"):
+                    warnings.warn("key inst_vis_ratio not found, trying to get segmentation masks...")
 
-            # inst_vis_ratio = np.sum(instance_map) / ((y2 - y1) * (x2 - x1))
-            inst_vis_ratio = gt["inst_vis_ratio"]
-            env_occl_ratio = gt["env_occl_ratio"]
-            crowd_occl_ratio = gt["crowd_occl_ratio"]
+                    semantic_seg = self._get_semantic_seg(imgId)
+                    instance_seg = self._get_instance_seg(imgId)
+
+                    # Update 2021-12-22: This clipping is necessary to get correct boolean masks, but it is now ensured to not
+                    # distort the occlusion ratios
+                    x1 = np.clip(gt['bbox'][0], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
+                    y1 = np.clip(gt['bbox'][1], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
+                    x2 = np.clip(gt['bbox'][0] + gt['bbox'][2], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
+                    y2 = np.clip(gt['bbox'][1] + gt['bbox'][3], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
+                    id = gt['instance_id']
+                    assert gt['instance_id'] // 1000 == 24
+                    pedestrian_map = semantic_seg[y1:y2, x1:x2] == 24
+                    instance_map = instance_seg[y1:y2, x1:x2] == id
+                    env_map = np.isin(semantic_seg[y1:y2, x1:x2], OCCLUSION_CLASSES_SEGM)
+                    inst_vis_ratio = np.sum(instance_map) / ((y2 - y1) * (x2 - x1))
+                    env_occl_ratio = np.sum(env_map) / ((y2 - y1) * (x2 - x1))
+                    crowd_occl_ratio = 1 - (np.sum(instance_map) / np.sum(pedestrian_map))
+                else:
+                    raise e
+
             if inst_vis_ratio < occ_thrs:
                 # assert np.sum(instance_map) > 0
-                # env_occl_ratio = np.sum(env_map) / ((y2 - y1) * (x2 - x1))
-                # crowd_occl_ratio = 1 - (np.sum(instance_map) / np.sum(pedestrian_map))
                 env_occluded = env_occl_ratio > env_thrs
                 # crowd occlusion is measured by (area_instance / area_pedestrian) \in [0, 1]
                 crowd_occluded = crowd_occl_ratio > crowd_thrs
@@ -430,7 +461,8 @@ class COCOeval:
             self.occ_pixel_thr,
             self.crowd_pixel_thrs,
             self.foreground_thrs,
-            self.ambfactor
+            self.ambfactor,
+            imgId
         )
 
         for i, o in enumerate(gt):

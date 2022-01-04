@@ -109,7 +109,7 @@ for setting in settings:
         ax.set_yscale("log")
         # ax.set_yticks([1, 0.1, 0.01])
         # ax.set_xticks([0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0])
-        ax.set_xlabel(f"{y.replace('fp_counts_', '')} per Image")
+        ax.set_xlabel(f"{fp_map[y.replace('fp_counts_', '')]} per Image")
         ax.set_ylabel("Miss Rate")
         ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
