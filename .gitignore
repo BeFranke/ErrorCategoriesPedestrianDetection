@@ -1,6 +1,9 @@
 input/dt/*
 input/gt/*
 !input/gt/cityscapes_val_enriched_gt.json
+!input/gt/kia_bit_04_enriched_gt.json
+!input/dt/cityscapes/csp_2_2021_09_10_084034_cityscapes_val_dt.json
+!input/dt/kia/
 input/datasets/*
 output/*
 *.png

@@ -1,7 +1,7 @@
 from os import path as P
 import os
 from time import strftime
-from typing import Optional
+from typing import Optional, Dict
 
 import yaml
 from easydict import EasyDict
@@ -27,7 +27,7 @@ class ErrorTypeEvaluator:
         self.out_path = out_path
         self.last_model = None
 
-    def evaluate(self, dt_json: str, gt_json: str) -> dict[str, float]:
+    def evaluate(self, dt_json: str, gt_json: str) -> Dict[str, float]:
         """
         run evaluation on given ground truth and detections
         @param dt_json: path to json-file containing detections to evaluate
