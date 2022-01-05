@@ -3,7 +3,7 @@
  * http://phrogz.net/tmp/canvas_zoom_to_cursor.html
  */
 
-const base_path = "cityscapes/leftImg8bit/val/"
+const base_path = "dataset/"
 function mod(n, m) {
     // modulo that does not give negative results
     return ((n % m) + m) % m;

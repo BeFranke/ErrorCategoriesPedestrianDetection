@@ -82,7 +82,7 @@ def mini_eval(coco, imgId):
 
 
 def main():
-    gt_json = P.abspath(P.join(P.dirname(__file__), "../..", "input", "gt", "val_cityscapes.json"))
+    gt_json = P.abspath(P.join(P.dirname(__file__), "../..", "input", "gt", "val_cityscapes.json.old"))
     # this does not really matter, but needs to be passed
     dt_json = P.abspath(P.join(P.dirname(__file__), "../..", "input", "dt", "std", "csp_1.json"))
 

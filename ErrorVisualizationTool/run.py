@@ -1,6 +1,7 @@
 import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import webbrowser
+from argparse import ArgumentParser
 
 
 """
@@ -8,12 +9,17 @@ prepare symlinks and serve webpage
 uses code from https://stackoverflow.com/questions/27977972/how-do-i-setup-a-local-http-server-using-python
 """
 
+out_dir = sorted(os.listdir("../output"))[-1]
+
+ap = ArgumentParser()
+ap.add_argument("--dataset_root", default="../input/datasets/cityscapes/leftImg8bit/val")
+ap.add_argument("--eval_folder", default=out_dir)
+args = ap.parse_args()
+
 try:
     os.remove("eval")
 except:
     pass
-
-out_dir = sorted(os.listdir("../output"))[-1]
 
 os.symlink(os.path.join("..", "output", out_dir, "raw"), "eval")
 
@@ -25,9 +31,12 @@ def create_index():
 
 
 try:
-    os.symlink("../input/datasets/cityscapes", "cityscapes")
-except FileExistsError:
-    print("Symlinks to cityscapes exists!")
+    os.remove("dataset")
+except Exception:
+    pass
+
+os.symlink(args.dataset_root, "dataset")
+
 
 create_index()
 
