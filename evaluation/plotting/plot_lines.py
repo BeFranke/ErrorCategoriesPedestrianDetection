@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({
     "text.usetex": True,
     "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"]
+    "font.sans-serif": ["Helvetica"],
+    "font.size": 14
 })
 
 
@@ -45,7 +46,7 @@ files = os.listdir(source_path)
 settings = set(map(lambda s: s.split("__")[-1].split(".")[0], files))
 
 models = MODEL_MAP.keys() # ["csp_1", "parallel_2", "parallel_0", "parallel_5"]
-fns = set(filter(lambda x: x != "fppi" and "Ghost" not in x and "Localization" not in x and "Scaling" not in x
+fns = set(filter(lambda x: x != "FPPI" and "Ghost" not in x and "Localization" not in x and "Scaling" not in x
                            and "fp_ratio" not in x and "recall" not in x and "precision" not in x
                            and "scores" not in x,
                  map(lambda s: s.split("__")[1], files)))
@@ -134,8 +135,8 @@ for setting in settings:
             except FileNotFoundError:
                 print(f"File for {model}-{y}-{setting} does not exist!")
 
-        ax.set_xlabel("fppi")
-        ax.set_ylabel("FP class ratio")
+        ax.set_xlabel("FPPI")
+        ax.set_ylabel("FP Class Ratio")
         ax.set_xscale("log")
         ax.set_ylim([0, 1.1])
         # ax.set_yscale("log")
@@ -163,7 +164,7 @@ for setting in settings:
                 print(f"File for {model}-{y}-{setting} does not exist!")
 
         ax.set_xlabel("Confidence")
-        ax.set_ylabel("FP class count")
+        ax.set_ylabel("FP Class Count")
         # ax.set_xscale("log")
         ax.set_yscale("log")
         ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)

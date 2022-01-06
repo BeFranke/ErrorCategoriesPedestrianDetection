@@ -17,7 +17,8 @@ from cityscapes import Cityscapes
 plt.rcParams.update({
     "text.usetex": True,
     "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"]
+    "font.sans-serif": ["Helvetica"],
+    "font.size": 14
 })
 
 IGNORE_MODELS = ["parallel_02"]
@@ -133,7 +134,7 @@ def main():
             print(f"{get_class_name(c if c != 19 else 255)}: {counts_total[c] / np.sum(counts_total)}")
 
     df = pd.DataFrame(results)
-    sns.set_style("darkgrid")
+    sns.set_theme(style="whitegrid")
     g = sns.catplot(
         data=df,
         kind="bar",
@@ -153,7 +154,7 @@ def main():
     plt.xticks(rotation=90)
     plt.subplots_adjust(bottom=0.3)
     plt.tight_layout()
-    plt.legend(loc='upper right')
+    plt.legend(loc='upper left')
     plt.savefig(os.path.join(ofolder, tfolder, "figures", f"ghost-analysis.pdf"))
 
 

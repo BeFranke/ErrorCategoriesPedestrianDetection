@@ -7,7 +7,8 @@ from matplotlib import pyplot as plt
 plt.rcParams.update({
     "text.usetex": True,
     "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"]
+    "font.sans-serif": ["Helvetica"],
+    "font.size": 14
 })
 
 values = ["LAMR", "FLAMR_crowdOcclusionErrors", "FLAMR_envOcclusionErrors", "FLAMR_foregroundErrors",
@@ -18,7 +19,7 @@ folder = P.abspath(P.join(
     P.dirname(__file__), "..", "..", "output"
 ))
 
-timestamps = ["20211231-134853", "20211231-135111", "20211231-135306", "20211231-135642"]
+timestamps = ["20220106-153536", "20220106-153744", "20220106-153931", "20220106-154118"]
 
 df = pd.concat((pd.read_csv(P.join(folder, ts, "results.csv")) for ts in timestamps), ignore_index=True)
 
@@ -36,7 +37,7 @@ df["model"] = df["model"].map({
 order = {"CSP": 0, "Elimination": 1, "Hourglass": 2, "ResNeXt": 3, "FusedDNN-1": 4}
 df.sort_values(by="model", key=lambda x: x.map(order))
 plt.tight_layout()
-sns.set_theme()
+sns.set_theme(style="whitegrid")
 
 for value in values:
     df_val = df[["model", "iouThreshold", value]]

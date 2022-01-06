@@ -9,7 +9,8 @@ from matplotlib import pyplot as plt
 plt.rcParams.update({
     "text.usetex": True,
     "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"]
+    "font.sans-serif": ["Helvetica"],
+    "font.size": 13
 })
 
 models = ["csp_1", "parallel_0", "parallel_2", "parallel_5", "parallel_01", "parallel_02"]
@@ -49,7 +50,7 @@ def make_frequency_bar_plot_fn(df, sstr):
     )
     g.despine(left=True)
 
-    plt.legend(loc='upper right')
+    plt.legend(loc='best')
     plt.xticks(rotation=45)
     # plt.title(f"FLAMR on {sstr} Evaluation (False Negatives)")
     plt.tight_layout()
@@ -82,7 +83,7 @@ def make_frequency_bar_plot_fp(df, sstr):
     )
     g.despine(left=True)
 
-    plt.legend(loc='upper right')
+    plt.legend(loc='best')
     plt.xticks(rotation=45)
     # plt.title(f"LAMR over FP class on {sstr} Evaluation (False Positives)")
     plt.tight_layout()
