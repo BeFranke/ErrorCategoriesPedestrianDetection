@@ -77,7 +77,8 @@ def mini_eval(coco, imgId):
         coco.occ_pixel_thr,
         coco.crowd_pixel_thrs,
         coco.foreground_thrs,
-        coco.ambfactor
+        coco.ambfactor,
+        imgId
     )
 
 
