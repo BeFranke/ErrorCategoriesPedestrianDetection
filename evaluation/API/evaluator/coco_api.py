@@ -388,7 +388,7 @@ class COCOeval:
                 crowd_occluded = env_occluded = False
                 ambiguous = False
 
-            mxd[i] = (crowd_occluded and env_occluded) or ambiguous
+            mxd[i] = ambiguous
             env[i] = env_occluded and not mxd[i]
             crd[i] = crowd_occluded and not mxd[i]
             assert not (env[i] and crd[i])
