@@ -35,7 +35,7 @@ def make_frequency_bar_plot_fn(df, sstr):
 
     order = df.groupby("Error Type")["Filtered Log-Average Miss Rate"].mean().sort_values(ascending=False).index.values
 
-    sns.set_style("darkgrid")
+    sns.set_style("whitegrid")
     g = sns.catplot(
         data=df,
         kind="bar",
@@ -69,7 +69,7 @@ def make_frequency_bar_plot_fp(df, sstr):
 
     df.columns = ["Model", "Error Type", "Filtered Log-Average Miss Rate"]
 
-    sns.set_style("darkgrid")
+    sns.set_style("whitegrid")
     g = sns.catplot(
         data=df,
         kind="bar",
