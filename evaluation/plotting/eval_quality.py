@@ -11,8 +11,8 @@ plt.rcParams.update({
     "font.size": 14
 })
 
-values = ["LAMR", "FLAMR_crowdOcclusionErrors", "FLAMR_envOcclusionErrors", "FLAMR_foregroundErrors",
-          "FLAMR_otherErrors", "FLAMR_mixedOcclusionErrors", "FLAMR_multiDetectionErrors", "FLAMR_ghostDetectionErrors",
+values = ["LAMR", "FLAMR_crowdOcclusion", "FLAMR_envOcclusion", "FLAMR_clearForeground",
+          "FLAMR_clearBackground", "FLAMR_ambiguousOcclusion", "FLAMR_localizationErrors", "FLAMR_ghostDetections",
           "FLAMR_scaleErrors"]
 
 folder = P.abspath(P.join(

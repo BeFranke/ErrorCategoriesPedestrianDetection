@@ -778,7 +778,7 @@ class COCOeval:
                 foreground_errors = np.concatenate(
                     [e['foregroundErrors'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                multi_detection_errors = np.concatenate(
+                loc_errors = np.concatenate(
                     [e['multiDetectionErrors'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
                 ghost_detection_errors = np.concatenate(
@@ -787,10 +787,10 @@ class COCOeval:
                 scaling_errors = np.concatenate(
                     [e['scalingErrors'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                other_errors = np.concatenate(
+                background_errors = np.concatenate(
                     [e['otherErrors'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                mixed_occ_errors = np.concatenate(
+                amb_occ_errors = np.concatenate(
                     [e['mixedOcclusionErrors'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
                 unmatched_gt_per_error = np.sum(np.concatenate(
@@ -810,11 +810,11 @@ class COCOeval:
                 crowd_occ_errors = crowd_occ_errors[:, inds]
                 env_occ_errors = env_occ_errors[:, inds]
                 foreground_errors = foreground_errors[:, inds]
-                other_errors = other_errors[:, inds]
-                multi_detection_errors = multi_detection_errors[:, inds]
+                background_errors = background_errors[:, inds]
+                loc_errors = loc_errors[:, inds]
                 ghost_detection_errors = ghost_detection_errors[:, inds]
                 scaling_errors = scaling_errors[:, inds]
-                mixed_occ_errors = mixed_occ_errors[:, inds]
+                amb_occ_errors = amb_occ_errors[:, inds]
 
                 tp_sum = np.cumsum(tps, axis=1).astype(dtype=np.float)
                 fp_sum = np.cumsum(fps, axis=1).astype(dtype=np.float)
@@ -822,16 +822,16 @@ class COCOeval:
                     np.cumsum(crowd_occ_errors, axis=1),
                     np.cumsum(env_occ_errors, axis=1),
                     np.cumsum(foreground_errors, axis=1),
-                    np.cumsum(other_errors, axis=1),
-                    np.cumsum(mixed_occ_errors, axis=1),
+                    np.cumsum(background_errors, axis=1),
+                    np.cumsum(amb_occ_errors, axis=1),
                 ])
                 error_cumsums_fp = np.stack([
-                    np.cumsum(multi_detection_errors, axis=1),
+                    np.cumsum(loc_errors, axis=1),
                     np.cumsum(ghost_detection_errors, axis=1),
                     np.cumsum(scaling_errors, axis=1)
                 ])
                 assert np.isin(
-                    np.all(crowd_occ_errors + env_occ_errors + foreground_errors + other_errors + mixed_occ_errors),
+                    np.all(crowd_occ_errors + env_occ_errors + foreground_errors + background_errors + amb_occ_errors),
                     [0, 1]
                 )
                 assert np.all(tp_cumsums_errcat <= np.array([n_crowd_gt, n_env_gt, n_foreground_gt,
@@ -1009,24 +1009,24 @@ class COCOeval:
             print("Filtered Log-Average Miss Rates")
             assert len(mean_e) == 5
             assert len(fp_mrs) == 3
-            for e_i, s in zip(mean_e, ['crowdOcclusionErrors', 'envOcclusionErrors', 'foregroundErrors', 'otherErrors',
-                                       'mixedOcclusionErrors']):
+            for e_i, s in zip(mean_e, ['crowdOcclusion', 'envOcclusion', 'clearForeground', 'clearBackground',
+                                       'ambiguousOcclusion']):
                 print(f"{s}: {e_i:.5f}")
                 self.metrics[f"FLAMR_{s}"] = e_i
-            for e_i, s in zip(fp_mrs, ["multiDetectionErrors", "ghostDetectionErrors", "scaleErrors"]):
+            for e_i, s in zip(fp_mrs, ["localizationErrors", "ghostDetections", "scaleErrors"]):
                 print(f"{s}: {e_i:.5f}")
                 self.metrics[f"FLAMR_{s}"] = e_i
 
             print("Category-aware Average Precision:")
-            for e_i, s in zip(ap, ["Overall", 'Crowd Occlusion Errors', 'Environmental Occlusion Errors',
-                                   'Foreground Errors', 'Standard Errors', 'Mixed Occlusion Errors',
-                                   "multiDetectionErrors", "ghostDetectionErrors", "scaleErrors"]):
+            for e_i, s in zip(ap, ["Overall", 'Crowd Occlusion', 'Environmental Occlusion',
+                                   'Clear Foreground', 'Clear Background', 'Ambiguous Occlusion',
+                                   "localizationErrors", "ghostDetections", "scaleErrors"]):
                 print(f"Precision-{s}: {e_i:.5f}")
                 self.metrics[f"FAP_{s}"] = e_i
 
             print("Category-aware FPPI @ minMR:")
             for e_i, s in zip(self.eval['class_fppi_minmr'],
-                              ["multiDetectionErrors", "ghostDetectionErrors", "scaleErrors"]):
+                              ["localizationErrors", "ghostDetections", "scaleErrors"]):
 
                 print(f"{s}@minMR: {e_i:.5f}")
                 self.metrics[f"CatFPPI_{s}"] = e_i

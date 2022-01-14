@@ -91,28 +91,28 @@ class ErrorTypeEvaluator:
                 cocoEval.eval["dt_scores"])
         np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__mr__{self.config.setting_id}.npy"),
                 cocoEval.eval["mr"])
-        for i, (err_c, s) in enumerate(zip(cocoEval.eval['fp_ratio'], ['Poor Localization', 'Ghost Detections',
+        for i, (err_c, s) in enumerate(zip(cocoEval.eval['fp_ratio'], ['Localization Errors', 'Ghost Detections',
                                                                        'Scaling Errors'])):
             np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__fp_ratio_{s.replace(' ', '')}__"
                                                    f"{self.config.setting_id}.npy"), err_c)
 
-        for i, (err_c, s) in enumerate(zip(cocoEval.eval['error_cumsums_fp'], ['Poor Localization', 'Ghost Detections',
+        for i, (err_c, s) in enumerate(zip(cocoEval.eval['error_cumsums_fp'], ['Localization Errors', 'Ghost Detections',
                                                                                'Scaling Errors'])):
             np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__fp_counts_{s.replace(' ', '')}__"
                                                    f"{self.config.setting_id}.npy"), err_c)
 
         for i, (err_c, s) in enumerate(zip(cocoEval.eval['error_map'],
-                                           ['Crowd Occlusion Errors', 'Environmental Occlusion Errors',
-                                            'Foreground Errors', 'Standard Errors', 'Mixed Occlusion Errors'])):
+                                           ['Crowd Occlusion', 'Environmental Occlusion',
+                                            'Clear Foreground', 'Clear Background', 'Ambiguous Occlusion'])):
             np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__{s.replace(' ', '')}__"
                                                    f"{self.config.setting_id}.npy"), err_c)
 
         np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__recall__{self.config.setting_id}.npy"),
                 cocoEval.eval['recall'])
         for j, (err_c, s) in enumerate(
-                zip(cocoEval.eval['cat_precision'], ['All', 'Crowd Occlusion Errors', 'Environmental Occlusion Errors',
-                                                     'Foreground Errors', 'Standard Errors', 'Mixed Occlusion Errors',
-                                                     'Poor Localization', 'Ghost Detections',
+                zip(cocoEval.eval['cat_precision'], ['All', 'Crowd Occlusion', 'Environmental Occlusion',
+                                                     'Clear Foreground', 'Clear Background', 'Ambiguous Occlusion',
+                                                     'Localization Errors', 'Ghost Detections',
                                                      'Scaling Errors'])):
             np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__precision_{s.replace(' ', '')}__"
                                                    f"{self.config.setting_id}.npy"), err_c)

@@ -20,14 +20,14 @@ sstr = "Reasonable"
 
 def make_frequency_bar_plot_fn(df, sstr):
     df = pd.melt(df, id_vars=["model"])
-    df = df[np.isin(df.variable, ['FLAMR-crowdOcclusionErrors', "FLAMR-envOcclusionErrors", "FLAMR-foregroundErrors",
-                                  "FLAMR-otherErrors", "FLAMR-mixedOcclusionErrors"])]
+    df = df[np.isin(df.variable, ['FLAMR-crowdOcclusion', "FLAMR-envOcclusion", "FLAMR-clearForeground",
+                                  "FLAMR-clearBackground", "FLAMR-ambiguousOcclusion"])]
     varmap = {
-        'FLAMR-crowdOcclusionErrors': "Crowd Occlusion",
-        "FLAMR-envOcclusionErrors": "Environmental Occlusion",
-        "FLAMR-foregroundErrors": "Clear Foreground",
-        "FLAMR-otherErrors": "Standard Ground Truth",
-        "FLAMR-mixedOcclusionErrors": "Ambiguous Occlusion"
+        'FLAMR-crowdOcclusion': "Crowd Occlusion",
+        "FLAMR-envOcclusion": "Environmental Occlusion",
+        "FLAMR-clearForeground": "Clear Foreground",
+        "FLAMR-clearBackground": "Clear Background",
+        "FLAMR-ambiguousOcclusion": "Ambiguous Occlusion"
     }
     df.variable = df.variable.map(lambda x: varmap[x] if x in varmap else x)
 
@@ -59,10 +59,10 @@ def make_frequency_bar_plot_fn(df, sstr):
 
 def make_frequency_bar_plot_fp(df, sstr):
     df = pd.melt(df, id_vars=["model"])
-    df = df[np.isin(df.variable, ["FLAMR-ghostDetectionErrors", "FLAMR-multiDetectionErrors", "FLAMR-scaleErrors"])]
+    df = df[np.isin(df.variable, ["FLAMR-ghostDetections", "FLAMR-localizationErrors", "FLAMR-scaleErrors"])]
     varmap = {
-        "FLAMR-multiDetectionErrors": "Localization Errors",
-        "FLAMR-ghostDetectionErrors": "Ghost Detections",
+        "FLAMR-localizationErrors": "Localization Errors",
+        "FLAMR-ghostDetections": "Ghost Detections",
         "FLAMR-scaleErrors": "Scaling Errors"
     }
     df.variable = df.variable.map(lambda x: varmap[x])

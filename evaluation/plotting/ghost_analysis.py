@@ -33,7 +33,7 @@ ofolder = os.path.abspath(os.path.join(
     "..", "..", "output"
 ))
 
-tfolder = sorted(filter(lambda x: os.path.isdir(os.path.join(ofolder, x)), os.listdir(ofolder)))[0]
+tfolder = sorted(filter(lambda x: os.path.isdir(os.path.join(ofolder, x)), os.listdir(ofolder)))[-1]
 
 order = ["csp_1___0.5___Reasonable", "parallel_0___0.5___Reasonable", "parallel_2___0.5___Reasonable",
          "parallel_5___0.5___Reasonable", "parallel_01___0.5___Reasonable"]

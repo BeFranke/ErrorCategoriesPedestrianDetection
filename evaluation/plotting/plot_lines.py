@@ -22,7 +22,7 @@ MODEL_MAP = {
 }
 fp_map = {
     "GhostDetections": "Ghost Detections",
-    "PoorLocalization": "Localization Errors",
+    "LocalizationErrors": "Localization Errors",
     "ScalingErrors": "Scaling Errors"
 }
 
