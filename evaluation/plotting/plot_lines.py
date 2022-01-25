@@ -17,7 +17,7 @@ MODEL_MAP = {
     'parallel_0': 'Elimination',
     'parallel_2': 'Hourglass',
     'parallel_5': 'ResNeXt',
-    'parallel_01': 'FusedDNN-1',
+    # 'parallel_01': 'FusedDNN-1',
     # 'parallel_02': 'FusedDNN-2'
 }
 fp_map = {

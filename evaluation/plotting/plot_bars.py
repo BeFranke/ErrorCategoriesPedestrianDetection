@@ -104,8 +104,8 @@ if __name__ == "__main__":
     df = pd.read_csv(source_path, index_col=None)
     mmap = {'csp_1': 'CSP', 'parallel_2': 'Hourglass Fusion', 'parallel_0': 'Elimination',
             'parallel_5': 'ResNeXt Fusion', 'parallel_01': 'FusedDNN-1', 'parallel_02': 'FusedDNN-2'}
-
     df = df[df["model"] != "parallel_02"]
+    df = df[df["model"] != "parallel_01"]
 
     df.columns = [s.replace("_", "-") for s in df.columns]
 
