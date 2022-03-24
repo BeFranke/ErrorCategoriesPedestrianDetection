@@ -1,13 +1,12 @@
-setting_id: 0       # 0 is reasonable, 4 is All
+setting_id: 4       # 0 is reasonable, 4 is All
 
 ambFactor: 0.75
 
 thresholds:
-  envPixelThrs: 0.5
-  occPixelThrs: 0.45
-  crowdPixelThrs: 0.35
+  envPixelThrs: 0.7
+  occPixelThrs: 0.6
+  crowdPixelThrs: 0.5
   iouMatchThrs: 0.5
-  foregroundThrs: 200
+  foregroundThrs: 190
   centerAlignedThreshold: 0.2
   reducedIouThreshold: 0.25
-

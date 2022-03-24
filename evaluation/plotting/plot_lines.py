@@ -13,12 +13,9 @@ plt.rcParams.update({
 
 
 MODEL_MAP = {
-    'csp_1': 'CSP',
-    'parallel_0': 'Elimination',
-    'parallel_2': 'Hourglass',
-    'parallel_5': 'ResNeXt',
-    # 'parallel_01': 'FusedDNN-1',
-    # 'parallel_02': 'FusedDNN-2'
+    'fpn_resnet': 'FPN-ResNet',
+    'hrnet': 'BCG-HRNetw32',
+    'csp_resnet': 'CSP-ResNet',
 }
 fp_map = {
     "GhostDetections": "Ghost Detections",
@@ -83,9 +80,9 @@ for setting in settings:
         ax.set_xticks([0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0])
         ax.set_xlabel("FPPI")
         ax.set_ylabel("Filtered Miss Rate" if y != "mr" else "Miss Rate")
-        ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
+        ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
         # ax.set_title(f"{y if 'Mixed' not in y else 'OtherOcclusionErrors'}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fn-mr-{y}-{setting}.pdf"))
@@ -112,9 +109,9 @@ for setting in settings:
         # ax.set_xticks([0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0])
         ax.set_xlabel(f"{fp_map[y.replace('fp_counts_', '')]} per Image")
         ax.set_ylabel("Miss Rate")
-        ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
+        ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
         # ax.set_title(f"Miss Rate over {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fp-mr-{y}-{setting}.pdf"))
@@ -140,9 +137,9 @@ for setting in settings:
         ax.set_xscale("log")
         ax.set_ylim([0, 1.1])
         # ax.set_yscale("log")
-        ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
+        ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
         # ax.set_title(f"Ratio of {fp_map[y.replace('fp_ratio_', '')]}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
@@ -167,9 +164,9 @@ for setting in settings:
         ax.set_ylabel("FP Class Count")
         # ax.set_xscale("log")
         ax.set_yscale("log")
-        ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
+        ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
         # ax.set_title(f"Counts of {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
@@ -194,9 +191,9 @@ for setting in settings:
         ax.set_ylabel("FP Count")
         # ax.set_xscale("log")
         ax.set_yscale("log")
-        ax.grid(b=True, which='major', axis='x', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='major', axis='y', linestyle='-', linewidth=1)
-        ax.grid(b=True, which='minor', axis='y', linestyle='--', linewidth=1)
+        ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
+        ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
         # ax.set_title(f"Total FP Count, {setting_str(setting)}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fpcount-overall-{setting}.pdf"))
