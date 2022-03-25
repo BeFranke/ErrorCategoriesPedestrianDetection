@@ -924,6 +924,9 @@ class COCOeval:
         assert cat_precision.shape[-1] == recall.shape[-1]
         minmr_idx = np.argmin(mr)
 
+        with warnings.catch_warnings():
+            fp_ratio = np.nan_to_num(error_cumsums_fp[:, 0, :] / (fppi * I0))
+
         self.eval = {
             'params': p,
             'counts': [T, R, K, M],
@@ -942,7 +945,7 @@ class COCOeval:
             'error_cumsums_fp': error_cumsums_fp,
             'sampled_mr_fp': sampled_mr_fp,
             'class_fppi_minmr': error_cumsums_fp[:, 0, minmr_idx] / I0,
-            'fp_ratio': np.nan_to_num(error_cumsums_fp[:, 0, :] / (fppi * I0)),
+            'fp_ratio': fp_ratio,
             'dt_scores': dtScores,
             'flamr_clear_ghost': flamr_clear_over_ghost
         }
