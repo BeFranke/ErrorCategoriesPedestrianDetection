@@ -723,7 +723,6 @@ class COCOeval:
         sampled_precision = -np.ones((9, T, len(p.recThrs), K, M))
         sampled_recall = -np.ones((T, len(p.recThrs), K, M))
         sampled_mr_fp = -np.ones([3, T, R, K, M])
-        sampled_flamr_ghost = -np.ones([T, R, K, M])        # "security-critical"-measure, FLAMR of clear categories over ghost detections
 
         # create dictionary for future indexing
         _pe = self._paramsEval
@@ -887,7 +886,6 @@ class COCOeval:
                         sampled_mr_fp[0, t, ri, k, m] = recall[inds_fp[0, ri]]
                         sampled_mr_fp[1, t, ri, k, m] = recall[inds_fp[1, ri]]
                         sampled_mr_fp[2, t, ri, k, m] = recall[inds_fp[2, ri]]
-                        # sampled_flamr_ghost[t, ri, k, m] = recall[inds_fp[1, ri]]
                     # except:
                     #     pass
                     sampled_precision[:, t, :, k, m] = cat_precision[:, inds_rec]
@@ -925,6 +923,7 @@ class COCOeval:
         minmr_idx = np.argmin(mr)
 
         with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="invalid value encountered in true_divide")
             fp_ratio = np.nan_to_num(error_cumsums_fp[:, 0, :] / (fppi * I0))
 
         self.eval = {
