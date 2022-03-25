@@ -723,6 +723,7 @@ class COCOeval:
         sampled_precision = -np.ones((9, T, len(p.recThrs), K, M))
         sampled_recall = -np.ones((T, len(p.recThrs), K, M))
         sampled_mr_fp = -np.ones([3, T, R, K, M])
+        sampled_flamr_ghost = -np.ones([T, R, K, M])        # "security-critical"-measure, FLAMR of clear categories over ghost detections
 
         # create dictionary for future indexing
         _pe = self._paramsEval
@@ -793,10 +794,6 @@ class COCOeval:
                 amb_occ_errors = np.concatenate(
                     [e['mixedOcclusionErrors'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                unmatched_gt_per_error = np.sum(np.concatenate(
-                    [e['unmatched_gt_fn'] for e in E], axis=1
-                ), axis=1)
-                assert len(unmatched_gt_per_error) == 5
 
                 npig = np.count_nonzero(gtIg == 0)
                 if npig == 0:
@@ -830,6 +827,7 @@ class COCOeval:
                     np.cumsum(ghost_detection_errors, axis=1),
                     np.cumsum(scaling_errors, axis=1)
                 ])
+                tp_cumsum_clear = np.cumsum(foreground_errors + background_errors, axis=1)
                 assert np.isin(
                     np.all(crowd_occ_errors + env_occ_errors + foreground_errors + background_errors + amb_occ_errors),
                     [0, 1]
@@ -889,6 +887,7 @@ class COCOeval:
                         sampled_mr_fp[0, t, ri, k, m] = recall[inds_fp[0, ri]]
                         sampled_mr_fp[1, t, ri, k, m] = recall[inds_fp[1, ri]]
                         sampled_mr_fp[2, t, ri, k, m] = recall[inds_fp[2, ri]]
+                        # sampled_flamr_ghost[t, ri, k, m] = recall[inds_fp[1, ri]]
                     # except:
                     #     pass
                     sampled_precision[:, t, :, k, m] = cat_precision[:, inds_rec]
@@ -906,6 +905,7 @@ class COCOeval:
                         norm = np.array([n_crowd_gt, n_env_gt, n_foreground_gt, n_other_gt, n_mixed_gt])
                         error_freqs[:, t, :, k, m] = 1 - tp_cumsums_errcat[:, t, inds] / norm[:, None]
                         lamr_check = 1 - np.sum(tp_cumsums_errcat[:, t, inds], axis=0) / npig
+                        flamr_clear_over_ghost = 1 - tp_cumsum_clear[t, inds_fp[1]] / (n_foreground_gt + n_other_gt)
 
                     print("INFO:")
                     print(f"n_crowd_gt={n_crowd_gt}")
@@ -943,7 +943,8 @@ class COCOeval:
             'sampled_mr_fp': sampled_mr_fp,
             'class_fppi_minmr': error_cumsums_fp[:, 0, minmr_idx] / I0,
             'fp_ratio': np.nan_to_num(error_cumsums_fp[:, 0, :] / (fppi * I0)),
-            'dt_scores': dtScores
+            'dt_scores': dtScores,
+            'flamr_clear_ghost': flamr_clear_over_ghost
         }
 
         toc = time.time()
@@ -1000,6 +1001,7 @@ class COCOeval:
 
             la = np.exp(np.mean(np.log(la)))
             mean_e = np.exp(np.mean(np.log(e + 1e-6), axis=(1, 2, 3, 4)))
+            flamr_clear_ghost = np.exp(np.mean(np.log(self.eval['flamr_clear_ghost'])))
             fp_mrs = np.exp(np.mean(np.log(fp_freqs_mr[:, 0, :, 0, 0]), axis=1))
             minmr_idx = np.argmin(self.eval['mr'])
             self.metrics["minMR"] = self.eval['mr'][minmr_idx]
@@ -1036,6 +1038,7 @@ class COCOeval:
             print(p.fppiThrs)
             print(np.squeeze(self.eval['confThrs']))
             print(f"LAMR-check value: {la}")
+            print(f"Clear Miss Rate over Ghost Detections (Log-Average): {flamr_clear_ghost}")
             # res_file.write(iStr.format(titleStr, typeStr,setupStr, iouStr, heightStr, occlStr, mean_s*100))
             # res_file.write(str(abs(mean_s) * 100))
             # res_file.write('\n')
