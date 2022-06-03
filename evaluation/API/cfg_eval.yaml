@@ -1,4 +1,4 @@
-setting_id: 4       # 0 is reasonable, 4 is All
+setting_id: 1       # 0 is reasonable, 1 is All
 
 ambFactor: 0.75
 

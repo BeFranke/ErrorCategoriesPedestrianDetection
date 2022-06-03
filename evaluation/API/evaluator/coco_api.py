@@ -1,14 +1,17 @@
-import copy
-import datetime
-import json
-import os
-import time
 import warnings
-from collections import defaultdict
 
 import numpy as np
-import pandas as pd
-from PIL import Image
+import datetime
+import time
+import os
+
+import json
+
+from collections import defaultdict
+from easydict import EasyDict as edict
+# from . import mask as maskUtils
+import copy
+import scipy.io as sio
 
 from ..utils.utils import update_recursive
 
@@ -64,54 +67,60 @@ class COCOeval:
     # Microsoft COCO Toolbox.      version 2.0
     # Data, paper, and tutorials available at:  http://mscoco.org/
     # Code written by Piotr Dollar and Tsung-Yi Lin, 2015.
-    # Licensed under the Simplified BSD License [see license.txt]
-    def __init__(self, cocoGt, cocoDt, iouType='bbox', env_pixel_thrs=0.4, occ_pixel_thr=0.5,
-                 crowd_pixel_thrs=0.1, iou_match_thrs=0.5, foreground_thrs=200, ambfactor=0.75,
-                 center_aligned_threshold=0.1, reduced_iou_threshold=0.25, split="val", output=None,
-                 output_path=None, normalization="class"):
-        """
+    # Licensed under the Simplified BSD License [see coco/license.txt]
+    def __init__(self, cocoGt, cocoDt, env_pixel_thrs, occ_pixel_thr, crowd_pixel_thrs,
+            iou_match_thrs, foreground_thrs, ambfactor, center_aligned_threshold, reduced_iou_threshold,
+            output, output_path, iouType='bbox'):
+        '''
         Initialize CocoEval using coco APIs for gt and dt
         :param cocoGt: coco object with ground truth annotations
         :param cocoDt: coco object with detection results
         :return: None
+        '''
+        if not iouType:
+            print('iouType not specified. use default iouType segm')
+        self.cocoGt   = cocoGt              # ground truth COCO API
+        self.cocoDt   = cocoDt              # detections COCO API
+        self.evalImgs = defaultdict(list)   # per-image per-category evaluation results [KxAxI] elements
+        self.eval     = {}                  # accumulated evaluation results
+        self._gts = defaultdict(list)       # gt for evaluation
+        self._dts = defaultdict(list)       # dt for evaluation
+        self.params = Params(
+            iouType=iouType,
+            thresholds = edict({
+                'envPixelThrs': env_pixel_thrs,
+                'occPixelThrs': occ_pixel_thr,
+                'crowdPixelThrs': crowd_pixel_thrs,
+                'iouMatchThrs': iou_match_thrs,
+                'foregroundThrs': foreground_thrs,
+                'centerAlignedThreshold': center_aligned_threshold,
+                'reducedIouThreshold': reduced_iou_threshold,
+            })
+        
+        ) # parameters
+        self.params
+        self._paramsEval = {}               # parameters for evaluation
+        self.stats = []                     # result summarization
+        self.ious = {}                      # ious between all gts and dts
+        if not cocoGt is None:
+            self.params.imgIds = sorted(cocoGt.getImgIds())
+            self.params.catIds = sorted(cocoGt.getCatIds())
 
-        """
-        self.reduced_iou_threshold = reduced_iou_threshold
-        self.center_aligned_threshold = center_aligned_threshold
-        assert normalization in ["total", "class"]
-        self.normalization = normalization
-        self.env_pixel_thrs = env_pixel_thrs
-        self.occ_pixel_thr = occ_pixel_thr
-        self.crowd_pixel_thrs = crowd_pixel_thrs
-        self.iou_match_thrs = iou_match_thrs
-        self.foreground_thrs = foreground_thrs
-        self.ambfactor = ambfactor
+        self.reduced_iou_threshold = self.params.thresholds.reducedIouThreshold
+        self.center_aligned_threshold = self.params.thresholds.centerAlignedThreshold
+        assert self.params.normalization in ["total", "class"]
+        self.normalization = self.params.normalization
+        self.env_pixel_thrs = self.params.thresholds.envPixelThrs
+        self.occ_pixel_thr = self.params.thresholds.occPixelThrs
+        self.crowd_pixel_thrs = self.params.thresholds.crowdPixelThrs
+        self.iou_match_thrs = self.params.thresholds.iouMatchThrs
+        self.foreground_thrs = self.params.thresholds.foregroundThrs
+        self.ambfactor = self.params.ambFactor
 
         self.segm_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "..", "..", "input", "datasets")
         )
 
-        if not iouType:
-            print('iouType not specified. use default iouType segm')
-        self.cocoGt = cocoGt  # ground truth COCO API
-        self.cocoDt = cocoDt  # detections COCO API
-        self.params = {}  # evaluation parameters
-        self.evalImgs = defaultdict(list)  # per-image per-category evaluation results [KxAxI] elements
-        self.eval = {}  # accumulated evaluation results
-        self._gts = defaultdict(list)  # gt for evaluation
-        self._dts = defaultdict(list)  # dt for evaluation
-        self.params = Params(
-            iouType=iouType,
-            iou_thres=self.iou_match_thrs
-        )  # parameters
-        self._paramsEval = {}  # parameters for evaluation
-        self.stats = []  # result summarization
-        self.ious = {}  # ious between all gts and dts
-        if cocoGt is not None:
-            self.params.imgIds = sorted(cocoGt.getImgIds())
-            self.params.catIds = sorted(cocoGt.getCatIds())
-        self.detections = []
-        self.split = split
         if output_path is not None:
             self.output_json_path = output_path
 
@@ -138,11 +147,11 @@ class COCOeval:
         '''
         p = self.params
         if p.useCats:
-            gts = self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds, catIds=p.catIds))
-            dts = self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds, catIds=p.catIds))
+            gts=self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds, catIds=p.catIds))
+            dts=self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds, catIds=p.catIds))
         else:
-            gts = self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds))
-            dts = self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds))
+            gts=self.cocoGt.loadAnns(self.cocoGt.getAnnIds(imgIds=p.imgIds))
+            dts=self.cocoDt.loadAnns(self.cocoDt.getAnnIds(imgIds=p.imgIds))
 
         # set ignore flag
         for gt in gts:
@@ -153,14 +162,15 @@ class COCOeval:
                                  gt['vis_ratio'] > self.params.VisRng[id_setup][1]) \
                 else gt['ignore']
 
-        self._gts = defaultdict(list)  # gt for evaluation
-        self._dts = defaultdict(list)  # dt for evaluation
+        self._gts = defaultdict(list)       # gt for evaluation
+        self._dts = defaultdict(list)       # dt for evaluation
         for gt in gts:
             self._gts[gt['image_id'], gt['category_id']].append(gt)
         for dt in dts:
             self._dts[dt['image_id'], dt['category_id']].append(dt)
-        self.evalImgs = defaultdict(list)  # per-image per-category evaluation results
-        self.eval = {}  # accumulated evaluation results
+        self.evalImgs = defaultdict(list)   # per-image per-category evaluation results
+        self.eval     = {}                  # accumulated evaluation results
+        
         if self.output is not None:
             self.output['meta']['setup'] = self.params.SetupLbl[id_setup]
 
@@ -181,25 +191,26 @@ class COCOeval:
         if p.useCats:
             p.catIds = list(np.unique(p.catIds))
         p.maxDets = sorted(p.maxDets)
-        self.params = p
+        self.params=p
 
         self._prepare(id_setup)
         # loop through images, area range, max detection number
         catIds = p.catIds if p.useCats else [-1]
 
         computeIoU = self.computeIoU
+
         self.ious = {(imgId, catId): computeIoU(imgId, catId) \
-                     for imgId in p.imgIds
-                     for catId in catIds}
+                        for imgId in p.imgIds
+                        for catId in catIds}
 
         evaluateImg = self.evaluateImg
         maxDet = p.maxDets[-1]
         HtRng = self.params.HtRng[id_setup]
         VisRng = self.params.VisRng[id_setup]
         self.evalImgs = [evaluateImg(imgId, catId, HtRng, VisRng, maxDet)
-                         for catId in catIds
-                         for imgId in p.imgIds
-                         ]
+                 for catId in catIds
+                 for imgId in p.imgIds
+             ]
         self._paramsEval = copy.deepcopy(self.params)
         toc = time.time()
         # print('DONE (t={:0.2f}s).'.format(toc-tic))
@@ -207,33 +218,35 @@ class COCOeval:
     def computeIoU(self, imgId, catId):
         p = self.params
         if p.useCats:
-            gt = self._gts[imgId, catId]
-            dt = self._dts[imgId, catId]
+            gt = self._gts[imgId,catId]
+            dt = self._dts[imgId,catId]
         else:
-            gt = [_ for cId in p.catIds for _ in self._gts[imgId, cId]]
-            dt = [_ for cId in p.catIds for _ in self._dts[imgId, cId]]
-        if len(gt) == 0 and len(dt) == 0:
+            gt = [_ for cId in p.catIds for _ in self._gts[imgId,cId]]
+            dt = [_ for cId in p.catIds for _ in self._dts[imgId,cId]]
+        if len(gt) == 0 and len(dt) ==0:
             return []
         inds = np.argsort([-d['score'] for d in dt], kind='mergesort')
         dt = [dt[i] for i in inds]
         if len(dt) > p.maxDets[-1]:
-            dt = dt[0:p.maxDets[-1]]
+            dt=dt[0:p.maxDets[-1]]
+
 
         if p.iouType == 'segm':
-            g = [g['datasets'] for g in gt]
-            d = [d['datasets'] for d in dt]
+            g = [g['segmentation'] for g in gt]
+            d = [d['segmentation'] for d in dt]
         elif p.iouType == 'bbox':
             g = [g['bbox'] for g in gt]
             d = [d['bbox'] for d in dt]
         else:
             raise Exception('unknown iouType for iou computation')
 
+
         # compute iou between each dt and gt region
         iscrowd = [int(o['ignore']) for o in gt]
-        ious = self.iou(d, g, iscrowd)
+        ious = self.iou(d,g,iscrowd)
         return ious
 
-    def iou(self, dts, gts, pyiscrowd):
+    def iou( self, dts, gts, pyiscrowd ):
         dts = np.asarray(dts)
         gts = np.asarray(gts)
         pyiscrowd = np.asarray(pyiscrowd)
@@ -251,19 +264,23 @@ class COCOeval:
                 dy2 = dt[1] + dt[3]
                 darea = dt[2] * dt[3]
 
-                unionw = min(dx2, gx2) - max(dx1, gx1)
+                unionw = min(dx2,gx2)-max(dx1,gx1)
                 if unionw <= 0:
                     continue
-                unionh = min(dy2, gy2) - max(dy1, gy1)
+                unionh = min(dy2,gy2)-max(dy1,gy1)
                 if unionh <= 0:
                     continue
                 t = unionw * unionh
+
+                # COCOs way to handle ignored gts:
+                # D (detection), GT (ground truth), darea (area of D)
+                # D is matched to ignored GT if (intersection / darea) > 0.5
                 if pyiscrowd[j]:
                     unionarea = darea
                 else:
                     unionarea = darea + garea - t
 
-                ious[i, j] = float(t) / unionarea
+                ious[i, j] = float(t)/unionarea
         return ious
 
     @staticmethod
@@ -330,7 +347,7 @@ class COCOeval:
         )
         return np.asarray(Image.open(isegm_path))
 
-    def classify_gt(self, gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs, amb_factor, imgId):
+    def classify_gt(self, gts, env_thrs, occ_thrs, crowd_thrs, foreground_thrs, amb_factor, imgId, crowd_classes=None):
         """
         determine which GTs are occluded, and which kind of occlusion it is
         :param instance_seg: np.ndarray that gives the images instance datasets
@@ -343,6 +360,8 @@ class COCOeval:
         # split into instance and class ids, source:
         # https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/json2instanceImg.py
         # class_id_map = instance_seg // 1000
+        if crowd_classes is None:
+            crowd_classes = {24, 25}
         env, crd, mxd, fgd, oth = [np.zeros(len(gts), dtype=bool) for _ in range(5)]
         for i, gt in enumerate(gts):
             if gt['ignore']:
@@ -362,11 +381,13 @@ class COCOeval:
                     # distort the occlusion ratios
                     x1 = np.clip(gt['bbox'][0], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
                     y1 = np.clip(gt['bbox'][1], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
-                    x2 = np.clip(gt['bbox'][0] + gt['bbox'][2], a_min=0, a_max=instance_seg.shape[1] - 1).round().astype(int)
-                    y2 = np.clip(gt['bbox'][1] + gt['bbox'][3], a_min=0, a_max=instance_seg.shape[0] - 1).round().astype(int)
+                    x2 = np.clip(gt['bbox'][0] + gt['bbox'][2], a_min=0,
+                                 a_max=instance_seg.shape[1] - 1).round().astype(int)
+                    y2 = np.clip(gt['bbox'][1] + gt['bbox'][3], a_min=0,
+                                 a_max=instance_seg.shape[0] - 1).round().astype(int)
                     id = gt['instance_id']
-                    assert gt['instance_id'] // 1000 == 24
-                    pedestrian_map = semantic_seg[y1:y2, x1:x2] == 24
+                    assert np.isin(gt['instance_id'] // 1000, crowd_classes)
+                    pedestrian_map = np.isin(semantic_seg[y1:y2, x1:x2], crowd_classes)
                     instance_map = instance_seg[y1:y2, x1:x2] == id
                     env_map = np.isin(semantic_seg[y1:y2, x1:x2], OCCLUSION_CLASSES_SEGM)
                     inst_vis_ratio = np.sum(instance_map) / ((y2 - y1) * (x2 - x1))
@@ -398,28 +419,55 @@ class COCOeval:
                 else:
                     oth[i] = True
 
-            assert gt["ignore"] or (env[i] ^ crd[i] ^ mxd[i] ^ fgd[i] ^ oth[i])
+            assert gt["ignore"] or (env[i] + crd[i] + mxd[i] + fgd[i] + oth[i] == 1)
 
         return env, crd, mxd, fgd, oth
 
+    def force_match(self, ec_gt, ec_dt, dt, gt, gtIg, ious, crowd_occ_dts, gtm, dtm, t, tind=0):
+        iou = min([t, 1 - 1e-10])
+        for gind, g in enumerate(gt):
+            if not ec_gt[gind] or gtIg[gind] == 1:
+                continue
+            dtScores = [d['score'] for d in dt]
+            dtIds = [d['id'] for d in dt]
+            # Get old match - dind
+            _dind = int(gtm[tind, gind])
+            # Already matched
+            if _dind != 0:
+                _dtid = dtIds.index(_dind)
+                # Get old best score
+                score = _score = dtScores[_dtid]
+            else:
+                score = _score = 0.0
+            betterid = None
+            for dind, d in enumerate(dt):
+                if ious[dind, gind] >= iou and crowd_occ_dts[tind, dind] and dtScores[dind] > score:
+                    score = dtScores[dind]
+                    betterid = dind
+            # if g['id'] == 1020:
+            #     print('boo')
+            if betterid is not None:
+                ec_dt[tind, betterid] = 1
+                gtm[tind, gind] = dtIds[betterid]
+                # Del old detection
+                if _dind != 0:
+                    dtm[tind, _dtid] = 0
+                    ec_dt[tind, _dtid] = 0
+                # print('Upgrade gtId {} score-wise from {} to {}'.format(g['id'], _score, score))
+
     def evaluateImg(self, imgId, catId, hRng, vRng, maxDet):
         '''
-        instance seg is numpy array with instance labels
         perform evaluation for single category and image
         :return: dict (single image results)
-
-        Note for report: if no instance datasets is available, the repulsion loss crowd-occlusion definition
-        could be swapped in
         '''
-
         p = self.params
         if p.useCats:
-            gt = self._gts[imgId, catId]
-            dt = self._dts[imgId, catId]
+            gt = self._gts[imgId,catId]
+            dt = self._dts[imgId,catId]
         else:
-            gt = [_ for cId in p.catIds for _ in self._gts[imgId, cId]]
-            dt = [_ for cId in p.catIds for _ in self._dts[imgId, cId]]
-        if len(gt) == 0 and len(dt) == 0:
+            gt = [_ for cId in p.catIds for _ in self._gts[imgId,cId]]
+            dt = [_ for cId in p.catIds for _ in self._dts[imgId,cId]]
+        if len(gt) == 0 and len(dt) ==0:
             return None
 
         for g in gt:
@@ -431,6 +479,7 @@ class COCOeval:
         gtind = np.argsort([g['_ignore'] for g in gt], kind='mergesort')
         gt = [gt[i] for i in gtind]
         dtind = np.argsort([-d['score'] for d in dt], kind='mergesort')
+        # dtind = np.argsort([-d['score'] for d in dt])
         dt = [dt[i] for i in dtind[0:maxDet]]
 
         dtind = [i for i in range(len(dt)) if
@@ -448,14 +497,14 @@ class COCOeval:
         T = len(p.iouThrs)
         G = len(gt)
         D = len(dt)
-        gtm = np.zeros((T, G))
-        dtm = np.zeros((T, D))
+        gtm  = np.zeros((T,G))
+        dtm  = np.zeros((T,D))
 
-        iscrowd, g, foreground_unocc, env_occluded, crowd_occluded, mixed_occluded = [
+        iscrowd, g, foreground, env_occluded, crowd_occluded, mixed_occluded = [
             np.zeros_like(gt) for _ in range(6)
         ]
 
-        env_occluded, crowd_occluded, mixed_occluded, foreground_unocc, other = self.classify_gt(
+        env_occluded, crowd_occluded, mixed_occluded, foreground, background = self.classify_gt(
             gt,
             self.env_pixel_thrs,
             self.occ_pixel_thr,
@@ -472,29 +521,34 @@ class COCOeval:
         assert len(crowd_occluded.shape) == 1
 
         gtIg = np.array([g['_ignore'] for g in gt])
-        dtIg = np.zeros((T, D))
+        dtIg = np.zeros((T,D))
 
         assert np.sum(
-            env_occluded + crowd_occluded + mixed_occluded + foreground_unocc + other
+            env_occluded + crowd_occluded + mixed_occluded + foreground + background
         ) == len(gt) - np.sum(gtIg)
 
         # error category analysis
-        scaling_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
-        crowd_occ_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
-        env_oc_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
-        foreground_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
-        multi_detection_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
-        ghost_detection_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+        # GT
+        crowd_occ_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+        env_oc_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+        foreground_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+        background_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+        mixed_occ_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+
+        #FP
+        scaling_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+        localization_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+        ghost_detection_dts = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
         unmatched_gt_fn = np.zeros([5, len(p.iouThrs)], dtype=bool)
-        other_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
-        mixed_occ_errors = np.zeros([len(p.iouThrs), len(dt)], dtype=bool)
+
         intersects_gt_nums = np.zeros([len(p.iouThrs), len(dt)], dtype=int) - 1
+        
         if self.output is not None:
             self.output['dts'][int(imgId)] = dt
             self.output['gts'][int(imgId)] = gt
 
             for i, g in enumerate(self.output['gts'][imgId]):
-                if foreground_unocc[i]:
+                if foreground[i]:
                     self.output['gts'][imgId][i]['error_type'] = "foreground"
                 elif env_occluded[i]:
                     self.output['gts'][imgId][i]['error_type'] = "env_occ"
@@ -503,9 +557,10 @@ class COCOeval:
                 elif mixed_occluded[i]:
                     self.output['gts'][imgId][i]['error_type'] = "mxd_occ"
                 else:
-                    assert other[i] or g['ignore']
-                    self.output['gts'][imgId][i]['error_type'] = "other"
+                    assert background[i] or g['ignore']
+                    self.output['gts'][imgId][i]['error_type'] = "background"
 
+        # ious = np.round(ious, 2)  # Yes, we could recover some matches this way: Valid?
         if not len(ious) == 0:
             for tind, t in enumerate(p.iouThrs):
                 last_score = 1
@@ -522,7 +577,6 @@ class COCOeval:
                     for gind, g in enumerate(gt):
                         if self.output is not None and 'matched_dt' not in self.output['gts'][imgId][gind]:
                             self.output['gts'][imgId][gind]['matched_dt'] = 0
-
                         m = gtm[tind, gind]
                         if ious[dind, gind] > t:
                             intersects_gt_nums[tind, dind] = gind
@@ -549,36 +603,40 @@ class COCOeval:
 
                     dtIg[tind, dind] = gtIg[bstg]
                     dtm[tind, dind] = gt[bstg]['id']
-
+                    
                     if bstm != -2 and self.output is not None:
                         self.output['dts'][imgId][dind]['matched_gt'] = gt[bstg]['id']
                         self.output['dts'][imgId][dind]['matched_gt_ignore'] = gt[bstg]['ignore']
                         self.output['gts'][imgId][bstg]['matched_dt'] = d['id']
 
+                  
+                    if bstm == 1:
+                        gtm[tind, bstg] = d['id']
+
                     # save maximum confidence dt to all relevant error categories
                     # each detection indexed here is by definition a TP
                     # if we arrive here, bstg has not been matched yet
                     if mixed_occluded[bstg] and bstm == 1:
-                        mixed_occ_errors[tind, dind] = 1
+                        mixed_occ_dts[tind, dind] = 1
                     elif crowd_occluded[bstg] and bstm == 1:
-                        # assert env_oc_errors[tind, dind] == 0
-                        crowd_occ_errors[tind, dind] = 1
+                        crowd_occ_dts[tind, dind] = 1
                     elif env_occluded[bstg] and bstm == 1:
-                        # assert env_oc_errors[tind, dind] == 0
-                        env_oc_errors[tind, dind] = 1
-                    elif foreground_unocc[bstg] and bstm == 1:
-                        # assert foreground_errors[tind, dind] == 0
-                        foreground_errors[tind, dind] = 1
-                    elif other[bstg] and bstm == 1:
-                        other_errors[tind, dind] = 1
+                        env_oc_dts[tind, dind] = 1
+                    elif foreground[bstg] and bstm == 1:
+                        foreground_dts[tind, dind] = 1
+                    elif background[bstg] and bstm == 1:
+                        background_dts[tind, dind] = 1
 
-                    if bstm == 1:
-                        gtm[tind, bstg] = d['id']
+                # Force Match and Re-Match for Foreground with Crowd Occlusion: Share detections!
+                if self.params.force_foreground_match:
+                    self.force_match(foreground, foreground_dts, dt, gt, gtIg, ious, crowd_occ_dts, gtm, dtm, p.iouThrs)
+                if self.params.force_background_match:
+                    self.force_match(background, background_dts, dt, gt, gtIg, ious, crowd_occ_dts, gtm, dtm, p.iouThrs)
 
                 # new FP definitions
                 center_aligned = self.find_center_aligned_off_scale(dt, gt, self.center_aligned_threshold)
                 assert len(center_aligned) == len(dtm[tind]) == len(intersects_gt_nums[tind])
-                scaling_errors[tind] = np.logical_and.reduce((
+                scaling_dts[tind] = np.logical_and.reduce((
                     np.logical_not(dtm[tind]),
                     center_aligned,
                 ))
@@ -590,83 +648,58 @@ class COCOeval:
                 # CHANGED: multi-detctions are now "poor localization" error, so the "GT is matched" condition is no
                 # longer required
                 # ious_matched[:, np.logical_not(gtm[tind].astype(bool))] = 0
-                multi_detection_errors[tind] = np.logical_and.reduce((
+                localization_dts[tind] = np.logical_and.reduce((
                     np.logical_not(dtm[tind]),
                     np.max(ious_matched, axis=1, initial=0) > self.reduced_iou_threshold,
-                    ~ scaling_errors[tind]
+                    ~ scaling_dts[tind]
                 ))
-                ghost_detection_errors[tind] = np.logical_and.reduce((
+                ghost_detection_dts[tind] = np.logical_and.reduce((
                     np.logical_not(dtm[tind]),
-                    np.logical_not(multi_detection_errors[tind]),
-                    np.logical_not(scaling_errors[tind])
+                    np.logical_not(localization_dts[tind]),
+                    np.logical_not(scaling_dts[tind])
                 ))
 
                 # ignore flags
-                crowd_occ_errors[tind] = np.logical_and(
-                    crowd_occ_errors[tind],
+                crowd_occ_dts[tind] = np.logical_and(
+                    crowd_occ_dts[tind],
                     np.logical_not(dtIg),
                 )
-                env_oc_errors[tind] = np.logical_and(
-                    env_oc_errors[tind],
+                env_oc_dts[tind] = np.logical_and(
+                    env_oc_dts[tind],
                     np.logical_not(dtIg)
                 )
-                foreground_errors[tind] = np.logical_and(
-                    foreground_errors[tind],
+                foreground_dts[tind] = np.logical_and(
+                    foreground_dts[tind],
                     np.logical_not(dtIg)
                 )
-                other_errors[tind] = np.logical_and(
-                    other_errors[tind],
+                background_dts[tind] = np.logical_and(
+                    background_dts[tind],
                     np.logical_not(dtIg)
                 )
-                mixed_occ_errors[tind] = np.logical_and(
-                    mixed_occ_errors[tind],
+                mixed_occ_dts[tind] = np.logical_and(
+                    mixed_occ_dts[tind],
                     np.logical_not(dtIg)
                 )
-                multi_detection_errors[tind] = np.logical_and(
-                    multi_detection_errors,
+                localization_dts[tind] = np.logical_and(
+                    localization_dts,
                     np.logical_not(dtIg)
                 )
-                ghost_detection_errors[tind] = np.logical_and(
-                    ghost_detection_errors,
+                ghost_detection_dts[tind] = np.logical_and(
+                    ghost_detection_dts,
                     np.logical_not(dtIg)
                 )
-                scaling_errors[tind] = np.logical_and(
-                    scaling_errors,
+                scaling_dts[tind] = np.logical_and(
+                    scaling_dts,
                     np.logical_not(dtIg)
                 )
-
-                # completely unmatched GTs
-                unmatched_gt_fn[0, tind] = np.sum(np.logical_and(
-                    np.logical_not(gtIg), np.logical_and(crowd_occluded, np.logical_not(gtm))
-                ))
-                unmatched_gt_fn[1, tind] = np.sum(np.logical_and(
-                    np.logical_not(gtIg), np.logical_and(env_occluded, np.logical_not(gtm))
-                ))
-                unmatched_gt_fn[2, tind] = np.sum(np.logical_and(
-                    np.logical_not(gtIg), np.logical_and(foreground_unocc, np.logical_not(gtm))
-                ))
-                unmatched_gt_fn[3, tind] = np.sum(np.logical_and(
-                    np.logical_not(gtIg), np.logical_and(
-                        np.logical_not(gtm), np.logical_not(
-                            foreground_unocc + env_occluded + crowd_occluded
-                        )
-                    )
-                ))
-                unmatched_gt_fn[4, tind] = np.sum(np.logical_and(
-                    np.logical_not(gtIg),
-                    np.logical_and(
-                        np.logical_and(crowd_occluded, env_occluded),
-                        np.logical_not(gtm)
-                    )
-                ))
-
+                
                 if self.output is not None:
                     for i, d in enumerate(self.output['dts'][imgId]):
-                        if multi_detection_errors[tind][i]:
-                            d["error_type"] = "multi"
-                        elif ghost_detection_errors[tind][i]:
+                        if localization_dts[tind][i]:
+                            d["error_type"] = "localization"
+                        elif ghost_detection_dts[tind][i]:
                             d["error_type"] = "ghost"
-                        elif scaling_errors[tind][i]:
+                        elif scaling_dts[tind][i]:
                             d["error_type"] = "scale"
                         else:
                             d["error_type"] = "none"
@@ -685,23 +718,42 @@ class COCOeval:
             'dtScores': [d['score'] for d in dt],
             'gtIgnore': gtIg,
             'dtIgnore': dtIg,
-            'crowdOcclusionErrors': crowd_occ_errors,  # co
-            'envOcclusionErrors': env_oc_errors,  # eo
-            'foregroundErrors': foreground_errors,  # fg
-            'multiDetectionErrors': multi_detection_errors,  # md
-            'ghostDetectionErrors': ghost_detection_errors,  # gd
-            'otherErrors': other_errors,
-            'scalingErrors': scaling_errors,
+
+            'dtHeights': [d['height'] for d in dt],
+            'dtWidths': [d['width'] for d in dt],
+            'dtBoxes': [d['bbox'] for d in dt],
+            'gtBoxes': [g['bbox'] for g in gt],
+            'gtVisRatios': [g['vis_ratio'] for g in gt],
+            'gtHeights': [g['height'] for g in gt],
+
+            # GT
+            'crowdOcclusionDts': crowd_occ_dts,  # co
+            'envOcclusionDts': env_oc_dts,  # eo
+            'foregroundDts': foreground_dts,  # fg
+            'mixedOcclusionDts': mixed_occ_dts,
+            'backgroundDts': background_dts,
+
+            'foreground': foreground,  # fg
+            'background': background,
+            'env_occluded': env_occluded,
+            'crowd_occluded': crowd_occluded,
+            'amb_occluded': mixed_occluded,
+
+            # FP
+            'localizationDts': localization_dts,  # md
+            'ghostDetectionDts': ghost_detection_dts,  # gd
+            'scalingDts': scaling_dts,
+
             'unmatched_gt_fn': unmatched_gt_fn,
-            'mixedOcclusionErrors': mixed_occ_errors,
+
             'numCrowdOcclusionGT': np.sum(np.logical_and(crowd_occluded, np.logical_not(gtIg))),
             'numEnvOcclusionGT': np.sum(np.logical_and(env_occluded, np.logical_not(gtIg))),
             'numMixedOcclusionGT': np.sum(np.logical_and(mixed_occluded, np.logical_not(gtIg))),
-            'numForegroundGT': np.sum(np.logical_and(foreground_unocc, np.logical_not(gtIg))),
-            'numOtherGT': np.sum(np.logical_and(other, np.logical_not(gtIg)))
+            'numForegroundGT': np.sum(np.logical_and(foreground, np.logical_not(gtIg))),
+            'numBackgroundGT': np.sum(np.logical_and(background, np.logical_not(gtIg)))
         }
 
-    def accumulate(self, p=None):
+    def accumulate(self, p=None, verbose=False):
         '''
         Accumulate per image evaluation results and store the result in self.eval
         :param p: input params for evaluation
@@ -738,6 +790,7 @@ class COCOeval:
         I0 = len(_pe.imgIds)
 
         error_freqs = np.zeros([5, T, R, len(k_list), len(m_list)])
+        error_cat_h = np.zeros([5, T, R, len(k_list), len(m_list)])
         conf_thrs_fppi = np.zeros([T, len(k_list), len(m_list), 9])
         fp_mrs = np.zeros([3, T, len(k_list), len(m_list), 9])
 
@@ -761,37 +814,39 @@ class COCOeval:
                 dtm = np.concatenate([e['dtMatches'][:, 0:maxDet] for e in E], axis=1)[:, inds]
                 dtIg = np.concatenate([e['dtIgnore'][:, 0:maxDet] for e in E], axis=1)[:, inds]
                 gtIg = np.concatenate([e['gtIgnore'] for e in E])
+                n_gtIg = np.sum(gtIg)
+                n_gt = gtIg.size
                 n_crowd_gt = np.sum([e['numCrowdOcclusionGT'] for e in E])
                 n_env_gt = np.sum([e['numEnvOcclusionGT'] for e in E])
                 n_foreground_gt = np.sum([e['numForegroundGT'] for e in E])
                 n_mixed_gt = np.sum([e['numMixedOcclusionGT'] for e in E])
-                n_other_gt = np.sum([e['numOtherGT'] for e in E])
+                n_other_gt = np.sum([e['numBackgroundGT'] for e in E])
                 assert n_other_gt >= 0
 
                 # here we extract all error class arrays
-                crowd_occ_errors = np.concatenate(
-                    [e['crowdOcclusionErrors'][:, 0:maxDet] for e in E], axis=1
+                crowd_occ_dts = np.concatenate(
+                    [e['crowdOcclusionDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                env_occ_errors = np.concatenate(
-                    [e['envOcclusionErrors'][:, 0:maxDet] for e in E], axis=1
+                env_occ_dts = np.concatenate(
+                    [e['envOcclusionDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                foreground_errors = np.concatenate(
-                    [e['foregroundErrors'][:, 0:maxDet] for e in E], axis=1
+                foreground_dts = np.concatenate(
+                    [e['foregroundDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                loc_errors = np.concatenate(
-                    [e['multiDetectionErrors'][:, 0:maxDet] for e in E], axis=1
+                loc_dts = np.concatenate(
+                    [e['localizationDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                ghost_detection_errors = np.concatenate(
-                    [e['ghostDetectionErrors'][:, 0:maxDet] for e in E], axis=1
+                ghost_detection_dts = np.concatenate(
+                    [e['ghostDetectionDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                scaling_errors = np.concatenate(
-                    [e['scalingErrors'][:, 0:maxDet] for e in E], axis=1
+                scaling_dts = np.concatenate(
+                    [e['scalingDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                background_errors = np.concatenate(
-                    [e['otherErrors'][:, 0:maxDet] for e in E], axis=1
+                background_dts = np.concatenate(
+                    [e['backgroundDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
-                amb_occ_errors = np.concatenate(
-                    [e['mixedOcclusionErrors'][:, 0:maxDet] for e in E], axis=1
+                amb_occ_dts = np.concatenate(
+                    [e['mixedOcclusionDts'][:, 0:maxDet] for e in E], axis=1
                 )[:, inds]
 
                 npig = np.count_nonzero(gtIg == 0)
@@ -803,72 +858,70 @@ class COCOeval:
                 tps = tps[:, inds]
                 fps = fps[:, inds]
                 dtScores = dtScores[inds]
-                crowd_occ_errors = crowd_occ_errors[:, inds]
-                env_occ_errors = env_occ_errors[:, inds]
-                foreground_errors = foreground_errors[:, inds]
-                background_errors = background_errors[:, inds]
-                loc_errors = loc_errors[:, inds]
-                ghost_detection_errors = ghost_detection_errors[:, inds]
-                scaling_errors = scaling_errors[:, inds]
-                amb_occ_errors = amb_occ_errors[:, inds]
+                crowd_occ_dts = crowd_occ_dts[:, inds]
+                env_occ_dts = env_occ_dts[:, inds]
+                foreground_dts = foreground_dts[:, inds]
+                background_dts = background_dts[:, inds]
+                loc_dts = loc_dts[:, inds]
+                ghost_detection_dts = ghost_detection_dts[:, inds]
+                scaling_dts = scaling_dts[:, inds]
+                amb_occ_dts = amb_occ_dts[:, inds]
 
+                # _ = np.cumsum(np.squeeze(foreground_dts))
                 tp_sum = np.cumsum(tps, axis=1).astype(dtype=np.float)
                 fp_sum = np.cumsum(fps, axis=1).astype(dtype=np.float)
                 tp_cumsums_errcat = np.stack([
-                    np.cumsum(crowd_occ_errors, axis=1),
-                    np.cumsum(env_occ_errors, axis=1),
-                    np.cumsum(foreground_errors, axis=1),
-                    np.cumsum(background_errors, axis=1),
-                    np.cumsum(amb_occ_errors, axis=1),
+                    np.cumsum(crowd_occ_dts, axis=1),
+                    np.cumsum(env_occ_dts, axis=1),
+                    np.cumsum(foreground_dts, axis=1),
+                    np.cumsum(background_dts, axis=1),
+                    np.cumsum(amb_occ_dts, axis=1),
                 ])
                 error_cumsums_fp = np.stack([
-                    np.cumsum(loc_errors, axis=1),
-                    np.cumsum(ghost_detection_errors, axis=1),
-                    np.cumsum(scaling_errors, axis=1)
+                    np.cumsum(loc_dts, axis=1),
+                    np.cumsum(ghost_detection_dts, axis=1),
+                    np.cumsum(scaling_dts, axis=1)
                 ])
-                tp_cumsum_clear = np.cumsum(foreground_errors + background_errors, axis=1)
+                tp_cumsum_clear = np.cumsum(foreground_dts + background_dts, axis=1)
                 assert np.isin(
-                    np.all(crowd_occ_errors + env_occ_errors + foreground_errors + background_errors + amb_occ_errors),
+                    np.all(crowd_occ_dts + env_occ_dts + foreground_dts + background_dts + amb_occ_dts),
                     [0, 1]
                 )
-                assert np.all(tp_cumsums_errcat <= np.array([n_crowd_gt, n_env_gt, n_foreground_gt,
-                                                            n_other_gt, n_mixed_gt])[:, None, None])
+                # assert np.all(tp_cumsums_errcat <= np.array([n_crowd_gt, n_env_gt, n_foreground_gt,
+                #                                              n_other_gt, n_mixed_gt])[:, None, None])
 
                 # this loop iterates over iouThresholds
                 for t, (tp, fp) in enumerate(zip(tp_sum, fp_sum)):
-                    np.testing.assert_array_equal(np.squeeze(np.sum(tp_cumsums_errcat, axis=0)), tp)
+                    # np.testing.assert_array_equal(np.squeeze(np.sum(tp_cumsums_errcat, axis=0)), tp)
                     tp = np.array(tp)
                     fppi = np.array(fp) / I0
                     nd = len(tp)
                     recall = tp / npig
                     # 1st axis: [all, crowd, env, foreground, other, mixed, loc, ghost, scaling]
-                    cat_precision = np.squeeze(np.stack([
-                        tp_cumsums_errcat[0] / (fp + tp_cumsums_errcat[0] + np.spacing(1)),
-                        tp_cumsums_errcat[1] / (fp + tp_cumsums_errcat[1] + np.spacing(1)),
-                        tp_cumsums_errcat[2] / (fp + tp_cumsums_errcat[2] + np.spacing(1)),
-                        tp_cumsums_errcat[3] / (fp + tp_cumsums_errcat[3] + np.spacing(1)),
-                        tp_cumsums_errcat[4] / (fp + tp_cumsums_errcat[4] + np.spacing(1)),
-                        (tp / (fp + tp + np.spacing(1)))[None, :],
-                        (tp / (error_cumsums_fp[0] + tp + np.spacing(1))),
-                        (tp / (error_cumsums_fp[1] + tp + np.spacing(1))),
-                        (tp / (error_cumsums_fp[2] + tp + np.spacing(1)))
-                    ], axis=0))
+                    # cat_precision = np.squeeze(np.stack([
+                    #     tp_cumsums_errcat[0] / (fp + tp_cumsums_errcat[0] + np.spacing(1)),
+                    #     tp_cumsums_errcat[1] / (fp + tp_cumsums_errcat[1] + np.spacing(1)),
+                    #     tp_cumsums_errcat[2] / (fp + tp_cumsums_errcat[2] + np.spacing(1)),
+                    #     tp_cumsums_errcat[3] / (fp + tp_cumsums_errcat[3] + np.spacing(1)),
+                    #     tp_cumsums_errcat[4] / (fp + tp_cumsums_errcat[4] + np.spacing(1)),
+                    #     (tp / (fp + tp + np.spacing(1)))[None, :],
+                    #     (tp / (error_cumsums_fp[0] + tp + np.spacing(1))),
+                    #     (tp / (error_cumsums_fp[1] + tp + np.spacing(1))),
+                    #     (tp / (error_cumsums_fp[2] + tp + np.spacing(1)))
+                    # ], axis=0))
                     q = np.zeros((R,))
 
                     # numpy is slow without cython optimization for accessing elements
                     # use python array gets significant speed improvement
                     # recall = recall.tolist()
                     q = q.tolist()
-
                     for i in range(nd - 1, 0, -1):
                         if recall[i] < recall[i - 1]:
                             recall[i - 1] = recall[i]
-                        # flatten the precision-recall curve
-                        for j in range(len(cat_precision)):
-                            if cat_precision[j, i] > cat_precision[j, i - 1]:
-                                cat_precision[j, i-1] = cat_precision[j, i]
-
-
+                        # # flatten the precision-recall curve
+                        # for j in range(len(cat_precision)):
+                        #     if cat_precision[j, i] > cat_precision[j, i - 1]:
+                        #         cat_precision[j, i - 1] = cat_precision[j, i]
                     mr = 1 - recall
 
                     # Sorting for fppi between 10^-2 and 10^0
@@ -876,7 +929,6 @@ class COCOeval:
                     inds_fp = np.zeros([3, 9])
                     for i in range(3):
                         inds_fp[i] = np.searchsorted(np.squeeze(error_cumsums_fp[i] / I0), p.fppiThrs, side='right') - 1
-
                     inds_fp = inds_fp.astype(int)
                     inds_rec = np.searchsorted(recall, p.recThrs, side='right') - 1
 
@@ -888,7 +940,7 @@ class COCOeval:
                         sampled_mr_fp[2, t, ri, k, m] = recall[inds_fp[2, ri]]
                     # except:
                     #     pass
-                    sampled_precision[:, t, :, k, m] = cat_precision[:, inds_rec]
+                    # sampled_precision[:, t, :, k, m] = cat_precision[:, inds_rec]
                     sampled_recall[t, :, k, m] = recall[inds_rec]
                     conf_thrs_fppi[t, k, m, :] = dtScores[inds]
 
@@ -902,30 +954,36 @@ class COCOeval:
                         # normalize by number of GTs with that error class, FPs still get noirmalize dby npig
                         norm = np.array([n_crowd_gt, n_env_gt, n_foreground_gt, n_other_gt, n_mixed_gt])
                         error_freqs[:, t, :, k, m] = 1 - tp_cumsums_errcat[:, t, inds] / norm[:, None]
+                        error_cat_h[:, t, :, k, m] = 1 - tp_cumsums_errcat[:, t, inds_fp[1, :]] / norm[:, None]
+                        tp_mrs_clear = 1 - tp_cumsum_clear[t, inds_fp[1]] / (n_foreground_gt + n_other_gt)
                         lamr_check = 1 - np.sum(tp_cumsums_errcat[:, t, inds], axis=0) / npig
-                        flamr_clear_over_ghost = 1 - tp_cumsum_clear[t, inds_fp[1]] / (n_foreground_gt + n_other_gt)
 
-                    print("INFO:")
-                    print(f"n_crowd_gt={n_crowd_gt}")
-                    print(f"n_env_gt={n_env_gt}")
-                    print(f"n_foreground_gt={n_foreground_gt}")
-                    print(f"n_other_gt={n_other_gt}")
-                    print(f"n_mixed_gt={n_mixed_gt}")
-                    assert npig == n_crowd_gt + n_env_gt + n_foreground_gt + n_other_gt + n_mixed_gt
-                    print(f"n_gt={npig}")
+                    if verbose:
+                        print("INFO:")
+                        print(f"n_crowd_gt={n_crowd_gt}")
+                        print(f"n_env_gt={n_env_gt}")
+                        print(f"n_foreground_gt={n_foreground_gt}")
+                        print(f"n_background_gt={n_other_gt}")
+                        print(f"n_mixed_gt={n_mixed_gt}")
+                        assert npig == n_crowd_gt + n_env_gt + n_foreground_gt + n_other_gt + n_mixed_gt
+                        print(f"n_gt={npig}")
 
+                    # _tp_cumsums_errcat = tp_cumsums_errcat[:, t, :] / norm[:, None]
+                    mr_errcat = 1.0 - tp_cumsums_errcat[:, t, :] / norm[:, None]
+                    minmr_idx = np.argmin(mr)
+                    
         if self.output is not None and self.output_json_path is not None:
             self.output_json_path += "___" + self.output['meta']['setup']
             with open(self.output_json_path, "w+") as fp:
                 json.dump(self.output, fp, indent=4, sort_keys=True)
 
-        assert cat_precision.shape[-1] == recall.shape[-1]
-        minmr_idx = np.argmin(mr)
-
+        # assert cat_precision.shape[-1] == recall.shape[-1]
+        recall_errcat = np.max(np.squeeze(tp_cumsums_errcat) / norm[:, None], axis=1)
+        
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message="invalid value encountered in true_divide")
+            warnings.filterwarnings("ignore")
             fp_ratio = np.nan_to_num(error_cumsums_fp[:, 0, :] / (fppi * I0))
-
+        
         self.eval = {
             'params': p,
             'counts': [T, R, K, M],
@@ -934,113 +992,134 @@ class COCOeval:
             'fppi': fppi.tolist(),
             'mr': mr.tolist(),
             'error_freqs': error_freqs,
-            'confThrs': conf_thrs_fppi,
+            'error_cat_h': error_cat_h,
+            # 'confThrs': conf_thrs_fppi,
             'lamr_check': lamr_check,
             'error_map': 1 - tp_cumsums_errcat / norm[:, None, None],
-            'cat_precision': cat_precision,
+            'mr_errcat': mr_errcat,
+            'recall_errcat': recall_errcat,
+            'max_fppi': np.max(fppi),
+            # 'cat_precision': cat_precision,
             'recall': recall,
-            'sampled_precision': sampled_precision,
+            # 'sampled_precision': sampled_precision,
             'sampled_recall': sampled_recall,
             'error_cumsums_fp': error_cumsums_fp,
             'sampled_mr_fp': sampled_mr_fp,
             'class_fppi_minmr': error_cumsums_fp[:, 0, minmr_idx] / I0,
-            'fp_ratio': fp_ratio,
             'dt_scores': dtScores,
-            'flamr_clear_ghost': flamr_clear_over_ghost
+            'tp_mrs_clear': tp_mrs_clear,
+            'fp_ratio': fp_ratio,
+            'counts_error_categories': {'F': n_foreground_gt, 'B': n_other_gt, 'C': n_crowd_gt, 'E': n_env_gt,
+                                        'A': n_mixed_gt, 'total': n_gt, 'I': n_gtIg},
         }
 
+        assert n_gt == n_foreground_gt+n_other_gt+n_crowd_gt+n_env_gt+n_mixed_gt+n_gtIg
         toc = time.time()
         # print('DONE (t={:0.2f}s).'.format( toc-tic))
 
-    def summarize(self, id_setup):
+    def summarize(self, id_setup, verbose):
         '''
         Compute and display summary metrics for evaluation results.
         Note this functin can *only* be applied on the default parameter setting
         '''
-        self.metrics = {}
-
-        def _summarize(iouThr=None, maxDets=100):
+        def _summarize(iouThr=None, maxDets=100, verbose=False):
             p = self.params
             iStr = ' {:<18} {} @ {:<18} [ IoU={:<9} | height={:>6s} | visibility={:>6s} ] = {:0.2f}%'
             titleStr = 'Average Miss Rate'
-            typeStr = '(MR)'
+            typeStr = '(COCO)'
             setupStr = p.SetupLbl[id_setup]
             iouStr = '{:0.2f}:{:0.2f}'.format(p.iouThrs[0], p.iouThrs[-1]) \
                 if iouThr is None else '{:0.2f}'.format(iouThr)
             heightStr = '[{:0.0f}:{:0.0f}]'.format(p.HtRng[id_setup][0], p.HtRng[id_setup][1])
             occlStr = '[{:0.2f}:{:0.2f}]'.format(p.VisRng[id_setup][0], p.VisRng[id_setup][1])
 
-            self.metrics = {}
-
             mind = [i for i, mDet in enumerate(p.maxDets) if mDet == maxDets]
 
             # dimension of precision: [TxRxKxAxM]
             s = self.eval['TP']
             e = self.eval['error_freqs']
+            e_h = self.eval['error_cat_h']
+            # _e = np.squeeze(e)
             la = self.eval['lamr_check']
             fp_freqs_mr = self.eval['sampled_mr_fp']
+
+
             # IoU
             if iouThr is not None:
                 t = np.where(iouThr == p.iouThrs)[0]
                 s = s[t]
-                e = e[:, t]
-            mrs = 1 - s[:, :, :, mind]
+            mrs = 1-s[:,:,:,mind]
             fp_freqs_mr = 1 - fp_freqs_mr[..., mind]
             e = e[:, :, :, :, mind]
-            ap = self.eval['sampled_precision']
-            ap = ap[:, 0, :, 0, 0]      # quickfix: ignore other categories
-            ap = np.mean(ap, axis=1)
-            assert len(ap.shape) == 1
+            e_h = e_h[:, :, :, :, mind]
+            # ap = self.eval['sampled_precision']
+            # ap = ap[:, 0, :, 0, 0]  # quickfix: ignore other categories
+            # ap = np.mean(ap, axis=1)
+            # assert len(ap.shape) == 1
 
-            if len(mrs[mrs < 2]) == 0:
+            if len(mrs[mrs<2])==0:
                 mean_s = -1
             else:
-                mean_s = np.log(mrs[mrs < 2])
+                mean_s = np.log(mrs[mrs<2])
                 mean_s = np.mean(mean_s)
                 mean_s = np.exp(mean_s)
+
+            # if verbose: print(iStr.format(titleStr, typeStr,setupStr, iouStr, heightStr, occlStr, mean_s*100))
+            # res_file.write(iStr.format(titleStr, typeStr,setupStr, iouStr, heightStr, occlStr, mean_s*100))
+            # res_file.write(str(abs(mean_s) * 100))
+            # res_file.write('\n')
+
+            self.metrics = {}
 
             self.metrics["LAMR"] = mean_s
 
             la = np.exp(np.mean(np.log(la)))
             mean_e = np.exp(np.mean(np.log(e + 1e-6), axis=(1, 2, 3, 4)))
-            flamr_clear_ghost = np.exp(np.mean(np.log(self.eval['flamr_clear_ghost'])))
+            mean_e_h = np.exp(np.mean(np.log(e_h + 1e-6), axis=(1, 2, 3, 4)))
             fp_mrs = np.exp(np.mean(np.log(fp_freqs_mr[:, 0, :, 0, 0]), axis=1))
             minmr_idx = np.argmin(self.eval['mr'])
             self.metrics["minMR"] = self.eval['mr'][minmr_idx]
             self.metrics["FPPI"] = self.eval['fppi'][minmr_idx]
 
-            print(iStr.format(titleStr, typeStr, setupStr, iouStr, heightStr, occlStr, mean_s * 100))
-            print("Filtered Log-Average Miss Rates")
+            if verbose:
+                print(iStr.format(titleStr, typeStr, setupStr, iouStr, heightStr, occlStr, mean_s * 100))
+                print("Filtered Log-Average Miss Rates")
+
             assert len(mean_e) == 5
             assert len(fp_mrs) == 3
             for e_i, s in zip(mean_e, ['crowdOcclusion', 'envOcclusion', 'clearForeground', 'clearBackground',
-                                       'ambiguousOcclusion']):
-                print(f"{s}: {e_i:.5f}")
+                                       'ambiguousOcclusion', 'FB']):
+                if verbose: print(f"{s}: {e_i:.5f}")
                 self.metrics[f"FLAMR_{s}"] = e_i
+            for e_i, s in zip(mean_e_h, ['crowdOcclusion', 'envOcclusion', 'clearForeground', 'clearBackground',
+                                       'ambiguousOcclusion', 'FB']):
+                if verbose: print(f"{s}: {e_i:.5f}")
+                self.metrics[f"FLAMRH_{s}"] = e_i
             for e_i, s in zip(fp_mrs, ["localizationErrors", "ghostDetections", "scaleErrors"]):
-                print(f"{s}: {e_i:.5f}")
+                if verbose: print(f"{s}: {e_i:.5f}")
                 self.metrics[f"FLAMR_{s}"] = e_i
 
-            print("Category-aware Average Precision:")
-            for e_i, s in zip(ap, ["Overall", 'Crowd Occlusion', 'Environmental Occlusion',
-                                   'Clear Foreground', 'Clear Background', 'Ambiguous Occlusion',
-                                   "localizationErrors", "ghostDetections", "scaleErrors"]):
-                print(f"Precision-{s}: {e_i:.5f}")
-                self.metrics[f"FAP_{s}"] = e_i
+            # if verbose: print("Category-aware Average Precision:")
+            # for e_i, s in zip(ap, ["Overall", 'Crowd Occlusion', 'Environmental Occlusion',
+            #                        'Clear Foreground', 'Clear Background', 'Ambiguous Occlusion',
+            #                        "localizationErrors", "ghostDetections", "scaleErrors"]):
+            #     if verbose: print(f"Precision-{s}: {e_i:.5f}")
+            #     self.metrics[f"FAP_{s}"] = e_i
 
-            print("Category-aware FPPI @ minMR:")
+            if verbose: print("Category-aware FPPI @ minMR:")
             for e_i, s in zip(self.eval['class_fppi_minmr'],
                               ["localizationErrors", "ghostDetections", "scaleErrors"]):
-
-                print(f"{s}@minMR: {e_i:.5f}")
+                if verbose: print(f"{s}@minMR: {e_i:.5f}")
                 self.metrics[f"CatFPPI_{s}"] = e_i
 
-            print("Other metrics:")
-            print("FPPI Thrs -> Conf Thrs:")
-            print(p.fppiThrs)
-            print(np.squeeze(self.eval['confThrs']))
-            print(f"LAMR-check value: {la}")
-            print(f"Clear Miss Rate over Ghost Detections (Log-Average): {flamr_clear_ghost}")
+            if verbose:
+                print("Other metrics:")
+                print("FPPI Thrs -> Conf Thrs:")
+                print(p.fppiThrs)
+                print(np.squeeze(self.eval['confThrs']))
+                print(f"LAMR-check value: {la}")
+                print(f"Clear FLAMR over Ghost Detections: {flamr_clear_ghost}")
+
             # res_file.write(iStr.format(titleStr, typeStr,setupStr, iouStr, heightStr, occlStr, mean_s*100))
             # res_file.write(str(abs(mean_s) * 100))
             # res_file.write('\n')
@@ -1048,18 +1127,16 @@ class COCOeval:
 
         if not self.eval:
             raise Exception('Please run accumulate() first')
-        self.mean_s, self.mean_e = _summarize(iouThr=self.iou_match_thrs, maxDets=1000)
+        self.mean_s = _summarize(iouThr=.5, maxDets=1000, verbose=verbose)
 
     def __str__(self):
         self.summarize()
-
 
 class Params:
     '''
     Params for coco evaluation api
     '''
-
-    def setDetParams(self):
+    def setDetParams(self, thresholds):
         self.imgIds = []
         self.catIds = []
 
@@ -1070,29 +1147,62 @@ class Params:
                                    num=int(np.round((1.00 - .0) / .01) + 1),
                                    endpoint=True)
         self.fppiThrs = np.array([0.0100, 0.0178, 0.0316, 0.0562, 0.1000, 0.1778, 0.3162, 0.5623, 1.0000])
+
+        # print('Use inverse ffpiThrs for Params in eval_MR_multisetup_extended!!!!!')
+        # self.fppiThrs = (1.0 - self.fppiThrs)[::-1]
+
         self.maxDets = [1000]
         self.expFilter = 1.25
         self.useCats = 1
 
-        self.iouThrs = np.array(
-            [self.iou_thres])  # np.linspace(.5, 0.95, np.round((0.95 - .5) / .05) + 1, endpoint=True)
+        self.iouThrs = np.array([0.5])  # np.linspace(.5, 0.95, np.round((0.95 - .5) / .05) + 1, endpoint=True)
 
-        # self.HtRng = [[50, 1e5 ** 2], [50,75], [50, 1e5 ** 2], [20, 1e5 ** 2]]
-        # self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.2,0.65], [0.2, 1e5 ** 2]]
-        # self.SetupLbl = ['Reasonable', 'Reasonable_small','Reasonable_occ=heavy', 'All']
+        self.HtRng = [
+            [50, 1e5 ** 2],
+            [50, 1e5 ** 2],
+        ]
+        self.VisRng = [
+            [0.0, 1e5 ** 2],
+            [0.65, 1e5 ** 2],
+        ]
+        self.SetupLbl = [
+            'All',
+            'Reasonable',
+        ]
 
-        self.HtRng = [[50, 1e5 ** 2], [50, 75], [75, 100], [100, 1e5 ** 2], [50, 1e5 ** 2]]
-        self.VisRng = [[0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.65, 1e5 ** 2], [0.2, 1e5 ** 2]]
-        self.SetupLbl = ['Reasonable', 'small', 'middle', 'large', 'All']
+        self.ambFactor = 0.75
 
-        # self.HtRng = [[50, 1e5 ** 2], [50, 1e5 ** 2], [50, 1e5 ** 2], [50, 1e5 ** 2]]
-        # self.VisRng = [[0.65, 1e5 ** 2], [0.9, 1e5 ** 2], [0.65, 0.9], [0, 0.65]]
-        # self.SetupLbl = ['Reasonable', 'bare', 'partial', 'heavy']
+        # # Original: Benedikts masterthesis
+        # self.thresholds = edict({
+        #     'envPixelThrs': 0.5,
+        #     'occPixelThrs': 0.45,
+        #     'crowdPixelThrs': 0.35,
+        #     'iouMatchThrs': 0.5,
+        #     'foregroundThrs': 200,
+        #     'centerAlignedThreshold': 0.2,
+        #     'reducedIouThreshold': 0.25,
+        # })
+        if thresholds is None:
+            self.thresholds = edict({
+                'envPixelThrs': 0.7,
+                'occPixelThrs': 0.6,
+                'crowdPixelThrs': 0.5,
+                'iouMatchThrs': 0.5,
+                'foregroundThrs': 190,  # from evaluator/COCO/tools/enrich_ground_truth/calc_foreground_height.py
+                'centerAlignedThreshold': 0.2,
+                'reducedIouThreshold': 0.25,
+            })
+        else:
+            self.thresholds = thresholds
 
-    def __init__(self, iouType='segm', iou_thres=0.5):
-        self.iou_thres = iou_thres
+        self.force_foreground_match = True
+        self.force_background_match = True
+
+        self.normalization = 'class'
+
+    def __init__(self, iouType='segm', thresholds=None):
         if iouType == 'segm' or iouType == 'bbox':
-            self.setDetParams()
+            self.setDetParams(thresholds)
         else:
             raise Exception('iouType not supported')
         self.iouType = iouType

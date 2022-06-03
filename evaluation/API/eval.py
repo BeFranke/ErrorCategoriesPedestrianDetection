@@ -70,7 +70,7 @@ class ErrorTypeEvaluator:
         coco.params.imgIds = imgIds
         coco.evaluate(id)
         coco.accumulate()
-        coco.summarize(id_setup=id)
+        coco.summarize(id_setup=id, verbose=False)
 
         self.save_plotting_data(coco)
 
@@ -109,10 +109,3 @@ class ErrorTypeEvaluator:
 
         np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__recall__{self.config.setting_id}.npy"),
                 cocoEval.eval['recall'])
-        for j, (err_c, s) in enumerate(
-                zip(cocoEval.eval['cat_precision'], ['All', 'Crowd Occlusion', 'Environmental Occlusion',
-                                                     'Clear Foreground', 'Clear Background', 'Ambiguous Occlusion',
-                                                     'Localization Errors', 'Ghost Detections',
-                                                     'Scaling Errors'])):
-            np.save(os.path.join(PLOT_OUTPUT_PATH, f"{self.last_model}__precision_{s.replace(' ', '')}__"
-                                                   f"{self.config.setting_id}.npy"), err_c)
