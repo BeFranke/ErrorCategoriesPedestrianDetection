@@ -7639,7 +7639,7 @@
             "bbox": [
                 0,
                 378,
-                31,
+                29,
                 77
             ],
             "vis_bbox": [
@@ -7652,9 +7652,9 @@
             "vis_ratio": 0.691244239631,
             "width": 31,
             "instance_id": 25002,
-            "env_occl_ratio": 0.50900712191,
+            "env_occl_ratio": 0.521156263092,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.472978634269
+            "inst_vis_ratio": 0.493506493506
         },
         {
             "id": 179,
@@ -8523,7 +8523,7 @@
             "bbox": [
                 0,
                 374,
-                83,
+                79,
                 202
             ],
             "vis_bbox": [
@@ -8536,9 +8536,9 @@
             "vis_ratio": 0.771084337349,
             "width": 83,
             "instance_id": 24001,
-            "env_occl_ratio": 0.279374925444,
+            "env_occl_ratio": 0.291244184659,
             "crowd_occl_ratio": 0.218958018994,
-            "inst_vis_ratio": 0.524871764285
+            "inst_vis_ratio": 0.551447549818
         },
         {
             "id": 213,
@@ -15517,7 +15517,7 @@
             "bbox": [
                 0,
                 284,
-                129,
+                120,
                 315
             ],
             "vis_bbox": [
@@ -15530,9 +15530,9 @@
             "vis_ratio": 0.393109388458,
             "width": 129,
             "instance_id": 24000,
-            "env_occl_ratio": 0.77037037037,
+            "env_occl_ratio": 0.771674664698,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.223329641934
+            "inst_vis_ratio": 0.238677248677
         },
         {
             "id": 482,
@@ -17974,7 +17974,7 @@
             "vis_ratio": 0.285490196078,
             "width": 51,
             "instance_id": 24022,
-            "env_occl_ratio": 0.785021276596,
+            "env_occl_ratio": 0.801882352941,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.211914893617
         },
@@ -19612,7 +19612,7 @@
             "vis_ratio": 1.0,
             "width": 43,
             "instance_id": 10012,
-            "env_occl_ratio": 0.0,
+            "env_occl_ratio": 1.0,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 1.0
         },
@@ -20184,7 +20184,7 @@
             "vis_ratio": 0.477595599231,
             "width": 124,
             "instance_id": 24008,
-            "env_occl_ratio": 0.290473764646,
+            "env_occl_ratio": 0.628070925016,
             "crowd_occl_ratio": 0.575405450594,
             "inst_vis_ratio": 0.258736627611
         },
@@ -22706,7 +22706,7 @@
             "vis_ratio": 0.407717510011,
             "width": 67,
             "instance_id": 24011,
-            "env_occl_ratio": 0.582551594747,
+            "env_occl_ratio": 0.757007644703,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.417448405253
         },
@@ -24045,7 +24045,7 @@
             "bbox": [
                 0,
                 391,
-                82,
+                55,
                 200
             ],
             "vis_bbox": [
@@ -24060,7 +24060,7 @@
             "instance_id": 24000,
             "env_occl_ratio": 0.890365853659,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.098597560976
+            "inst_vis_ratio": 0.147
         },
         {
             "id": 810,
@@ -30103,7 +30103,7 @@
             "bbox": [
                 0,
                 347,
-                95,
+                91,
                 231
             ],
             "vis_bbox": [
@@ -30118,7 +30118,7 @@
             "instance_id": 24005,
             "env_occl_ratio": 0.898427887902,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.068853953064
+            "inst_vis_ratio": 0.071880500452
         },
         {
             "id": 1043,
@@ -30662,7 +30662,7 @@
             "vis_ratio": 0.123299319728,
             "width": 98,
             "instance_id": 24026,
-            "env_occl_ratio": 0.855681818182,
+            "env_occl_ratio": 0.919005102041,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.144318181818
         },
@@ -34848,7 +34848,7 @@
             "vis_ratio": 1.0,
             "width": 45,
             "instance_id": 10034,
-            "env_occl_ratio": 0.0,
+            "env_occl_ratio": 1.0,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 1.0
         },
@@ -35758,7 +35758,7 @@
             "vis_ratio": 0.209105088711,
             "width": 92,
             "instance_id": 24008,
-            "env_occl_ratio": 0.271428571429,
+            "env_occl_ratio": 0.445652173913,
             "crowd_occl_ratio": 0.775305510722,
             "inst_vis_ratio": 0.124855861627
         },
@@ -35784,7 +35784,7 @@
             "vis_ratio": 0.2868405094,
             "width": 119,
             "instance_id": 24009,
-            "env_occl_ratio": 0.422732479434,
+            "env_occl_ratio": 0.679834820526,
             "crowd_occl_ratio": 0.370660960533,
             "inst_vis_ratio": 0.27564302822
         },
@@ -36694,7 +36694,7 @@
             "vis_ratio": 0.757575757576,
             "width": 99,
             "instance_id": 24007,
-            "env_occl_ratio": 0.25444214876,
+            "env_occl_ratio": 0.397529009099,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.576342975207
         },
@@ -37968,7 +37968,7 @@
             "vis_ratio": 0.062589031339,
             "width": 96,
             "instance_id": 24027,
-            "env_occl_ratio": 0.945062300484,
+            "env_occl_ratio": 0.952501780627,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.054937699516
         },
@@ -38384,7 +38384,7 @@
             "vis_ratio": 0.096163186013,
             "width": 87,
             "instance_id": 24014,
-            "env_occl_ratio": 0.924547283702,
+            "env_occl_ratio": 0.939290917921,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.075452716298
         },
@@ -39580,7 +39580,7 @@
             "vis_ratio": 0.296585365854,
             "width": 50,
             "instance_id": 24032,
-            "env_occl_ratio": 0.37239738251,
+            "env_occl_ratio": 0.485365853659,
             "crowd_occl_ratio": 0.811374407583,
             "inst_vis_ratio": 0.118381915526
         },
@@ -39606,7 +39606,7 @@
             "vis_ratio": 0.167495618398,
             "width": 93,
             "instance_id": 24033,
-            "env_occl_ratio": 0.777305180009,
+            "env_occl_ratio": 0.8611150585,
             "crowd_occl_ratio": 0.18519781719,
             "inst_vis_ratio": 0.181452225429
         },
@@ -40360,7 +40360,7 @@
             "vis_ratio": 0.61179138322,
             "width": 60,
             "instance_id": 24017,
-            "env_occl_ratio": 0.242096838735,
+            "env_occl_ratio": 0.355782312925,
             "crowd_occl_ratio": 0.339485458613,
             "inst_vis_ratio": 0.472589035614
         },
@@ -44429,7 +44429,7 @@
             "bbox": [
                 0,
                 347,
-                44,
+                35,
                 108
             ],
             "vis_bbox": [
@@ -44442,9 +44442,9 @@
             "vis_ratio": 0.585437710438,
             "width": 44,
             "instance_id": 24035,
-            "env_occl_ratio": 0.497264309764,
+            "env_occl_ratio": 0.518097643098,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.462962962963
+            "inst_vis_ratio": 0.582010582011
         },
         {
             "id": 1594,
@@ -57052,7 +57052,7 @@
             "vis_ratio": 0.21269936546,
             "width": 98,
             "instance_id": 24003,
-            "env_occl_ratio": 0.801415302963,
+            "env_occl_ratio": 0.884496655805,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.198584697037
         },
@@ -58092,7 +58092,7 @@
             "vis_ratio": 0.401869158879,
             "width": 107,
             "instance_id": 24004,
-            "env_occl_ratio": 0.591327614701,
+            "env_occl_ratio": 0.62952129557,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.34642323129
         },
@@ -61394,7 +61394,7 @@
             "vis_ratio": 0.738219895288,
             "width": 191,
             "instance_id": 25000,
-            "env_occl_ratio": 0.533493225616,
+            "env_occl_ratio": 0.750870727816,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.399962130775
         },
@@ -62317,7 +62317,7 @@
             "bbox": [
                 0,
                 364,
-                87,
+                66,
                 214
             ],
             "vis_bbox": [
@@ -62330,9 +62330,9 @@
             "vis_ratio": 0.28950478032,
             "width": 87,
             "instance_id": 24001,
-            "env_occl_ratio": 0.697443334408,
-            "crowd_occl_ratio": 0.223838383838,
-            "inst_vis_ratio": 0.206359437104
+            "env_occl_ratio": 0.779460736921,
+            "crowd_occl_ratio": 0.041656273385,
+            "inst_vis_ratio": 0.272019258001
         },
         {
             "id": 2282,
@@ -63552,7 +63552,7 @@
             "vis_ratio": 0.266733727315,
             "width": 99,
             "instance_id": 24008,
-            "env_occl_ratio": 0.102892537134,
+            "env_occl_ratio": 0.374743283457,
             "crowd_occl_ratio": 0.731130178308,
             "inst_vis_ratio": 0.241205123579
         },
@@ -63630,7 +63630,7 @@
             "vis_ratio": 0.998384491115,
             "width": 254,
             "instance_id": 24011,
-            "env_occl_ratio": 0.141337164649,
+            "env_occl_ratio": 0.175142788088,
             "crowd_occl_ratio": 0.356086341118,
             "inst_vis_ratio": 0.481924839111
         },
@@ -64956,7 +64956,7 @@
             "vis_ratio": 0.600732600733,
             "width": 52,
             "instance_id": 25005,
-            "env_occl_ratio": 0.506220506221,
+            "env_occl_ratio": 0.648656898657,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.37752037752
         },
@@ -72249,7 +72249,7 @@
             "bbox": [
                 0,
                 349,
-                78,
+                52,
                 191
             ],
             "vis_bbox": [
@@ -72264,7 +72264,7 @@
             "instance_id": 24009,
             "env_occl_ratio": 0.896026312257,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.099744932206
+            "inst_vis_ratio": 0.149617398308
         },
         {
             "id": 2664,
@@ -78411,7 +78411,7 @@
             "bbox": [
                 0,
                 291,
-                113,
+                87,
                 276
             ],
             "vis_bbox": [
@@ -78424,9 +78424,9 @@
             "vis_ratio": 0.696582018725,
             "width": 113,
             "instance_id": 24026,
-            "env_occl_ratio": 0.289309991022,
-            "crowd_occl_ratio": 0.572232381488,
-            "inst_vis_ratio": 0.292516352443
+            "env_occl_ratio": 0.442349621649,
+            "crowd_occl_ratio": 0.462087264151,
+            "inst_vis_ratio": 0.379935032484
         },
         {
             "id": 2901,
@@ -78905,7 +78905,7 @@
             "bbox": [
                 0,
                 322,
-                41,
+                28,
                 101
             ],
             "vis_bbox": [
@@ -78918,9 +78918,9 @@
             "vis_ratio": 0.440473315624,
             "width": 41,
             "instance_id": 24009,
-            "env_occl_ratio": 0.352088867423,
-            "crowd_occl_ratio": 0.419880034276,
-            "inst_vis_ratio": 0.326974160831
+            "env_occl_ratio": 0.538034291234,
+            "crowd_occl_ratio": 0.220943613349,
+            "inst_vis_ratio": 0.478783592645
         },
         {
             "id": 2920,
@@ -81193,7 +81193,7 @@
             "bbox": [
                 0,
                 318,
-                74,
+                45,
                 181
             ],
             "vis_bbox": [
@@ -81206,9 +81206,9 @@
             "vis_ratio": 0.030461400627,
             "width": 74,
             "instance_id": 24035,
-            "env_occl_ratio": 0.243765865313,
-            "crowd_occl_ratio": 0.975988142292,
-            "inst_vis_ratio": 0.018142451844
+            "env_occl_ratio": 0.51769449007,
+            "crowd_occl_ratio": 0.962383900929,
+            "inst_vis_ratio": 0.029834254144
         },
         {
             "id": 3008,
@@ -81219,7 +81219,7 @@
             "bbox": [
                 0,
                 335,
-                82,
+                55,
                 200
             ],
             "vis_bbox": [
@@ -81232,9 +81232,9 @@
             "vis_ratio": 0.585365853659,
             "width": 82,
             "instance_id": 24036,
-            "env_occl_ratio": 0.188841463415,
-            "crowd_occl_ratio": 0.462798579729,
-            "inst_vis_ratio": 0.405914634146
+            "env_occl_ratio": 0.481036585366,
+            "crowd_occl_ratio": 0.203898588854,
+            "inst_vis_ratio": 0.605181818182
         },
         {
             "id": 3009,
@@ -82493,7 +82493,7 @@
             "bbox": [
                 0,
                 326,
-                95,
+                55,
                 233
             ],
             "vis_bbox": [
@@ -82506,9 +82506,9 @@
             "vis_ratio": 0.378947368421,
             "width": 95,
             "instance_id": 24037,
-            "env_occl_ratio": 0.141811610571,
-            "crowd_occl_ratio": 0.930844316991,
-            "inst_vis_ratio": 0.056652360515
+            "env_occl_ratio": 0.500564716512,
+            "crowd_occl_ratio": 0.881564034756,
+            "inst_vis_ratio": 0.097854077253
         },
         {
             "id": 3058,
@@ -82545,7 +82545,7 @@
             "bbox": [
                 0,
                 337,
-                92,
+                80,
                 224
             ],
             "vis_bbox": [
@@ -82558,9 +82558,9 @@
             "vis_ratio": 0.79347826087,
             "width": 92,
             "instance_id": 24039,
-            "env_occl_ratio": 0.10680318323,
-            "crowd_occl_ratio": 0.530287474333,
-            "inst_vis_ratio": 0.399602096273
+            "env_occl_ratio": 0.215984083851,
+            "crowd_occl_ratio": 0.471404487096,
+            "inst_vis_ratio": 0.454910714286
         },
         {
             "id": 3060,
@@ -83611,7 +83611,7 @@
             "bbox": [
                 0,
                 410,
-                38,
+                29,
                 95
             ],
             "vis_bbox": [
@@ -83624,9 +83624,9 @@
             "vis_ratio": 0.178393351801,
             "width": 38,
             "instance_id": 24007,
-            "env_occl_ratio": 0.815512465374,
-            "crowd_occl_ratio": 0.388888888889,
-            "inst_vis_ratio": 0.112742382271
+            "env_occl_ratio": 0.86675900277,
+            "crowd_occl_ratio": 0.153846153846,
+            "inst_vis_ratio": 0.147731397459
         },
         {
             "id": 3101,
@@ -84651,7 +84651,7 @@
             "bbox": [
                 0,
                 288,
-                150,
+                147,
                 365
             ],
             "vis_bbox": [
@@ -84664,9 +84664,9 @@
             "vis_ratio": 0.684785388128,
             "width": 150,
             "instance_id": 24007,
-            "env_occl_ratio": 0.128347031963,
-            "crowd_occl_ratio": 0.379295714892,
-            "inst_vis_ratio": 0.427543378995
+            "env_occl_ratio": 0.146538812785,
+            "crowd_occl_ratio": 0.364810593726,
+            "inst_vis_ratio": 0.436268754077
         },
         {
             "id": 3141,
@@ -86458,7 +86458,7 @@
             "vis_ratio": 0.597609561753,
             "width": 251,
             "instance_id": 24007,
-            "env_occl_ratio": 0.477586025968,
+            "env_occl_ratio": 0.644092471874,
             "crowd_occl_ratio": 0.010467467587,
             "inst_vis_ratio": 0.476174122092
         },
@@ -90072,7 +90072,7 @@
             "vis_ratio": 0.437764524817,
             "width": 92,
             "instance_id": 24004,
-            "env_occl_ratio": 0.709526288391,
+            "env_occl_ratio": 0.838976529434,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.273642200243
         },
@@ -91073,7 +91073,7 @@
             "bbox": [
                 0,
                 326,
-                113,
+                78,
                 275
             ],
             "vis_bbox": [
@@ -91086,9 +91086,9 @@
             "vis_ratio": 0.037071600965,
             "width": 113,
             "instance_id": 24002,
-            "env_occl_ratio": 0.938696701529,
-            "crowd_occl_ratio": 0.507086614173,
-            "inst_vis_ratio": 0.030217216412
+            "env_occl_ratio": 0.951246983105,
+            "crowd_occl_ratio": 0.380198019802,
+            "inst_vis_ratio": 0.043776223776
         },
         {
             "id": 3388,
@@ -91736,7 +91736,7 @@
             "vis_ratio": 0.156033057851,
             "width": 50,
             "instance_id": 24009,
-            "env_occl_ratio": 0.761130365236,
+            "env_occl_ratio": 0.851900826446,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.138629698747
         },
@@ -92334,7 +92334,7 @@
             "vis_ratio": 1.0,
             "width": 12,
             "instance_id": 10012,
-            "env_occl_ratio": 0.0,
+            "env_occl_ratio": 1.0,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 1.0
         },
@@ -93322,7 +93322,7 @@
             "vis_ratio": 0.26120269329,
             "width": 59,
             "instance_id": 24008,
-            "env_occl_ratio": 0.763209393346,
+            "env_occl_ratio": 0.831437195264,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.236790606654
         },
@@ -94518,7 +94518,7 @@
             "vis_ratio": 0.570093457944,
             "width": 107,
             "instance_id": 24022,
-            "env_occl_ratio": 0.133960156395,
+            "env_occl_ratio": 0.336305914247,
             "crowd_occl_ratio": 0.574330861013,
             "inst_vis_ratio": 0.368646434556
         },
@@ -95116,7 +95116,7 @@
             "vis_ratio": 0.6286882993,
             "width": 159,
             "instance_id": 24008,
-            "env_occl_ratio": 0.173344561652,
+            "env_occl_ratio": 0.396905466363,
             "crowd_occl_ratio": 0.094647926331,
             "inst_vis_ratio": 0.579558549774
         },
@@ -100680,7 +100680,7 @@
             "vis_ratio": 1.0,
             "width": 33,
             "instance_id": 10004,
-            "env_occl_ratio": 0.0,
+            "env_occl_ratio": 1.0,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 1.0
         },
@@ -106946,7 +106946,7 @@
             "vis_ratio": 0.324637681159,
             "width": 92,
             "instance_id": 24003,
-            "env_occl_ratio": 0.595555555556,
+            "env_occl_ratio": 0.745024154589,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.317777777778
         },
@@ -107804,7 +107804,7 @@
             "vis_ratio": 1.0,
             "width": 14,
             "instance_id": 10003,
-            "env_occl_ratio": 0.0,
+            "env_occl_ratio": 1.0,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 1.0
         },
@@ -112211,7 +112211,7 @@
             "bbox": [
                 0,
                 337,
-                143,
+                78,
                 350
             ],
             "vis_bbox": [
@@ -112224,9 +112224,9 @@
             "vis_ratio": 0.327692307692,
             "width": 143,
             "instance_id": 24001,
-            "env_occl_ratio": 0.652667332667,
+            "env_occl_ratio": 0.772227772228,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.127472527473
+            "inst_vis_ratio": 0.232417582418
         },
         {
             "id": 4201,
@@ -114239,7 +114239,7 @@
             "bbox": [
                 0,
                 401,
-                36,
+                31,
                 87
             ],
             "vis_bbox": [
@@ -114254,7 +114254,7 @@
             "instance_id": 24000,
             "env_occl_ratio": 0.916028097063,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.083971902937
+            "inst_vis_ratio": 0.09751575825
         },
         {
             "id": 4279,
@@ -114811,7 +114811,7 @@
             "bbox": [
                 0,
                 285,
-                180,
+                91,
                 441
             ],
             "vis_bbox": [
@@ -114824,9 +114824,9 @@
             "vis_ratio": 0.463492063492,
             "width": 180,
             "instance_id": 25000,
-            "env_occl_ratio": 0.588384983623,
+            "env_occl_ratio": 0.694860166289,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.305139833711
+            "inst_vis_ratio": 0.603573297451
         },
         {
             "id": 4301,
@@ -115045,7 +115045,7 @@
             "bbox": [
                 0,
                 394,
-                70,
+                64,
                 171
             ],
             "vis_bbox": [
@@ -115060,7 +115060,7 @@
             "instance_id": 24000,
             "env_occl_ratio": 0.963826232247,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.036173767753
+            "inst_vis_ratio": 0.03956505848
         },
         {
             "id": 4310,
@@ -115214,7 +115214,7 @@
             "vis_ratio": 0.51724137931,
             "width": 58,
             "instance_id": 25001,
-            "env_occl_ratio": 0.554234459741,
+            "env_occl_ratio": 0.738689166055,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.445765540259
         },
@@ -115851,7 +115851,7 @@
             "bbox": [
                 0,
                 333,
-                103,
+                74,
                 250
             ],
             "vis_bbox": [
@@ -115864,9 +115864,9 @@
             "vis_ratio": 0.301825242718,
             "width": 103,
             "instance_id": 24015,
-            "env_occl_ratio": 0.753436893204,
-            "crowd_occl_ratio": 0.142227122381,
-            "inst_vis_ratio": 0.211495145631
+            "env_occl_ratio": 0.788504854369,
+            "crowd_occl_ratio": 0.0,
+            "inst_vis_ratio": 0.294378378378
         },
         {
             "id": 4341,
@@ -116319,7 +116319,7 @@
             "bbox": [
                 0,
                 307,
-                140,
+                98,
                 343
             ],
             "vis_bbox": [
@@ -116332,9 +116332,9 @@
             "vis_ratio": 0.440274885464,
             "width": 140,
             "instance_id": 24005,
-            "env_occl_ratio": 0.075364431487,
-            "crowd_occl_ratio": 0.807263681592,
-            "inst_vis_ratio": 0.161349437734
+            "env_occl_ratio": 0.370658059142,
+            "crowd_occl_ratio": 0.722034871206,
+            "inst_vis_ratio": 0.230499196763
         },
         {
             "id": 4359,
@@ -116982,7 +116982,7 @@
             "vis_ratio": 0.522841530055,
             "width": 75,
             "instance_id": 24006,
-            "env_occl_ratio": 0.501170960187,
+            "env_occl_ratio": 0.580983606557,
             "crowd_occl_ratio": 0.246169916435,
             "inst_vis_ratio": 0.37557463787
         },
@@ -118464,7 +118464,7 @@
             "vis_ratio": 0.531070153712,
             "width": 106,
             "instance_id": 24017,
-            "env_occl_ratio": 0.488551674598,
+            "env_occl_ratio": 0.585051358636,
             "crowd_occl_ratio": 0.199350421348,
             "inst_vis_ratio": 0.409490886235
         },
@@ -118867,7 +118867,7 @@
             "bbox": [
                 0,
                 360,
-                85,
+                54,
                 206
             ],
             "vis_bbox": [
@@ -118880,9 +118880,9 @@
             "vis_ratio": 0.552941176471,
             "width": 85,
             "instance_id": 24008,
-            "env_occl_ratio": 0.310279840091,
-            "crowd_occl_ratio": 0.264293750639,
-            "inst_vis_ratio": 0.410793832096
+            "env_occl_ratio": 0.520788121074,
+            "crowd_occl_ratio": 0.021282633371,
+            "inst_vis_ratio": 0.620100683207
         },
         {
             "id": 4457,
@@ -123170,7 +123170,7 @@
             "vis_ratio": 0.425681394955,
             "width": 220,
             "instance_id": 24006,
-            "env_occl_ratio": 0.472117826308,
+            "env_occl_ratio": 0.736058913154,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.430455391908
         },
@@ -125692,7 +125692,7 @@
             "vis_ratio": 0.570422535211,
             "width": 142,
             "instance_id": 24020,
-            "env_occl_ratio": 0.31638584117,
+            "env_occl_ratio": 0.576351788894,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.617914054336
         },
@@ -126277,7 +126277,7 @@
             "bbox": [
                 0,
                 399,
-                100,
+                94,
                 245
             ],
             "vis_bbox": [
@@ -126290,9 +126290,9 @@
             "vis_ratio": 0.707102040816,
             "width": 100,
             "instance_id": 24013,
-            "env_occl_ratio": 0.098816326531,
-            "crowd_occl_ratio": 0.85883229351,
-            "inst_vis_ratio": 0.123755102041
+            "env_occl_ratio": 0.154775510204,
+            "crowd_occl_ratio": 0.84920674392,
+            "inst_vis_ratio": 0.131654363873
         },
         {
             "id": 4742,
@@ -126355,7 +126355,7 @@
             "bbox": [
                 0,
                 409,
-                125,
+                78,
                 304
             ],
             "vis_bbox": [
@@ -126368,9 +126368,9 @@
             "vis_ratio": 0.566131578947,
             "width": 125,
             "instance_id": 24016,
-            "env_occl_ratio": 0.057921052632,
-            "crowd_occl_ratio": 0.5011409571,
-            "inst_vis_ratio": 0.402710526316
+            "env_occl_ratio": 0.429394736842,
+            "crowd_occl_ratio": 0.244790846586,
+            "inst_vis_ratio": 0.606823549258
         },
         {
             "id": 4745,
@@ -131165,7 +131165,7 @@
             "bbox": [
                 0,
                 317,
-                119,
+                78,
                 288
             ],
             "vis_bbox": [
@@ -131178,9 +131178,9 @@
             "vis_ratio": 0.5552054155,
             "width": 119,
             "instance_id": 25002,
-            "env_occl_ratio": 0.55768557423,
+            "env_occl_ratio": 0.592466153128,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.410655929038
+            "inst_vis_ratio": 0.621750356125
         },
         {
             "id": 4930,
@@ -132244,7 +132244,7 @@
             "vis_ratio": 0.370909090909,
             "width": 45,
             "instance_id": 24001,
-            "env_occl_ratio": 0.337878787879,
+            "env_occl_ratio": 0.646868686869,
             "crowd_occl_ratio": 0.399313501144,
             "inst_vis_ratio": 0.397727272727
         },
@@ -139082,7 +139082,7 @@
             "vis_ratio": 0.785714285714,
             "width": 42,
             "instance_id": 24007,
-            "env_occl_ratio": 0.187971952535,
+            "env_occl_ratio": 0.303975959316,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 0.81067961165
         },
@@ -145140,7 +145140,7 @@
             "vis_ratio": 1.0,
             "width": 50,
             "instance_id": 10030,
-            "env_occl_ratio": 0.0,
+            "env_occl_ratio": 1.0,
             "crowd_occl_ratio": 0.0,
             "inst_vis_ratio": 1.0
         },
@@ -149703,7 +149703,7 @@
             "bbox": [
                 0,
                 366,
-                19,
+                15,
                 47
             ],
             "vis_bbox": [
@@ -149716,9 +149716,9 @@
             "vis_ratio": 0.349384098544,
             "width": 19,
             "instance_id": 25000,
-            "env_occl_ratio": 0.668533034714,
+            "env_occl_ratio": 0.701007838746,
             "crowd_occl_ratio": 0.0,
-            "inst_vis_ratio": 0.259798432251
+            "inst_vis_ratio": 0.329078014184
         },
         {
             "id": 5643,
