@@ -14,13 +14,6 @@ import pandas as pd
 
 from cityscapes import Cityscapes
 
-plt.rcParams.update({
-    "text.usetex": True,
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"],
-    "font.size": 14
-})
-
 IGNORE_MODELS = ["parallel_02"]
 
 segm_root = os.path.abspath(os.path.join(
@@ -35,20 +28,13 @@ ofolder = os.path.abspath(os.path.join(
 
 tfolder = sorted(filter(lambda x: os.path.isdir(os.path.join(ofolder, x)), os.listdir(ofolder)))[-1]
 
-order = ["csp_1___0.5___Reasonable", "parallel_0___0.5___Reasonable", "parallel_2___0.5___Reasonable",
-         "parallel_5___0.5___Reasonable", "parallel_01___0.5___Reasonable"]
-
-BB_FILES = sorted(
-    map(
+BB_FILES = map(
         lambda x: os.path.join(ofolder, tfolder, "raw", x),
         filter(
             lambda x: all((ig not in x and "index.txt" not in x) for ig in IGNORE_MODELS),
             os.listdir(os.path.join(ofolder, tfolder, "raw"))
         )
-    ), key=lambda x: order.index(x.split("/")[-1])
-)
-
-NAMES = ["CSP", "Elimination", "Hourglass", "ResNeXt", "FusedDNN-1"]
+    )
 
 CONF_CUTOFF = 0.1
 
@@ -127,7 +113,7 @@ def main():
         # plt.bar(x=x, height=counts_total / np.sum(counts_total), label=NAMES[i])
         results['class name'] += x
         results['value'] += (counts_total / np.sum(counts_total)).tolist()
-        results['name'] += [NAMES[i] for _ in x]
+        results['name'] += [os.path.basename(bb_file).split("__")[0].replace("_", "-") for _ in x]
 
         print("Percentage of dominated ghost detections per class:")
         for c in inds:

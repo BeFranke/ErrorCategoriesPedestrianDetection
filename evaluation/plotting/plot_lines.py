@@ -1,31 +1,16 @@
 import os
 from os import path as P
 
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-plt.rcParams.update({
-    "text.usetex": True,
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"],
-    "font.size": 14
-})
 
-
-MODEL_MAP = {
-    'fpn_resnet': 'FPN-ResNet',
-    'hrnet': 'BCG-HRNetw32',
-    'csp_resnet': 'CSP-ResNet',
-}
 fp_map = {
     "GhostDetections": "Ghost Detections",
     "LocalizationErrors": "Localization Errors",
     "ScalingErrors": "Scaling Errors"
 }
-
-
-model_str = lambda s: MODEL_MAP[s] if s in MODEL_MAP else s
-setting_str = lambda x: "All" if "4" in x else "Reasonable"
 
 
 _plot_path = P.abspath(P.join(
@@ -42,7 +27,7 @@ OUT_PATH = P.abspath(P.join(
 files = os.listdir(source_path)
 settings = set(map(lambda s: s.split("__")[-1].split(".")[0], files))
 
-models = MODEL_MAP.keys() # ["csp_1", "parallel_2", "parallel_0", "parallel_5"]
+models = pd.read_csv(P.join(_plot_path, _source_folder, "results.csv"))["model"].unique()
 fns = set(filter(lambda x: x != "FPPI" and "Ghost" not in x and "Localization" not in x and "Scaling" not in x
                            and "fp_ratio" not in x and "recall" not in x and "precision" not in x
                            and "scores" not in x,
@@ -69,7 +54,7 @@ for setting in settings:
                 values = np.load(
                     os.path.join(source_path, f"{model}__{y}__{setting}.npy")
                 )
-                ax.plot(fppi, np.squeeze(values), label=model_str(model))
+                ax.plot(fppi, np.squeeze(values), label=model)
 
             except FileNotFoundError:
                 print(f"File for {model}-{y}-{setting} does not exist!")
@@ -83,7 +68,7 @@ for setting in settings:
         ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        # ax.set_title(f"{y if 'Mixed' not in y else 'OtherOcclusionErrors'}, {setting_str(setting)}")
+        ax.set_title(f"{y if 'Mixed' not in y else 'OtherOcclusionErrors'}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fn-mr-{y}-{setting}.pdf"))
         plt.pause(0.0001)       # without this, the plots do not show!
@@ -98,7 +83,7 @@ for setting in settings:
                 fppi = np.load(
                     os.path.join(source_path, f"{model}__{y}__{setting}.npy")
                 ) / 500
-                ax.plot(np.squeeze(fppi), np.squeeze(mrs), label=model_str(model))
+                ax.plot(np.squeeze(fppi), np.squeeze(mrs), label=model)
 
             except FileNotFoundError:
                 print(f"File for {model}-{y}-{setting} does not exist!")
@@ -112,7 +97,7 @@ for setting in settings:
         ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        # ax.set_title(f"Miss Rate over {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
+        ax.set_title(f"Miss Rate over {fp_map[y.replace('fp_counts_', '')]}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fp-mr-{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
@@ -127,7 +112,7 @@ for setting in settings:
                 values = np.load(
                     os.path.join(source_path, f"{model}__{y}__{setting}.npy")
                 )
-                ax.plot(fppi, np.squeeze(values), label=model_str(model))
+                ax.plot(fppi, np.squeeze(values), label=model)
 
             except FileNotFoundError:
                 print(f"File for {model}-{y}-{setting} does not exist!")
@@ -140,7 +125,7 @@ for setting in settings:
         ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        # ax.set_title(f"Ratio of {fp_map[y.replace('fp_ratio_', '')]}, {setting_str(setting)}")
+        ax.set_title(f"Ratio of {fp_map[y.replace('fp_ratio_', '')]}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
@@ -155,7 +140,7 @@ for setting in settings:
                 values = np.load(
                     os.path.join(source_path, f"{model}__{y}__{setting}.npy")
                 )
-                ax.plot(conf, np.squeeze(values), label=model_str(model))
+                ax.plot(conf, np.squeeze(values), label=model)
 
             except FileNotFoundError:
                 print(f"File for {model}-{y}-{setting} does not exist!")
@@ -167,7 +152,7 @@ for setting in settings:
         ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        # ax.set_title(f"Counts of {fp_map[y.replace('fp_counts_', '')]}, {setting_str(setting)}")
+        ax.set_title(f"Counts of {fp_map[y.replace('fp_counts_', '')]}")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"{y}-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!
@@ -182,7 +167,7 @@ for setting in settings:
                 values = np.load(
                     os.path.join(source_path, f"{model}__fppi__{setting}.npy")
                 ) * 500
-                ax.plot(conf, np.squeeze(values), label=model_str(model))
+                ax.plot(conf, np.squeeze(values), label=model)
 
             except FileNotFoundError:
                 print(f"File for {model}-{y}-{setting} does not exist!")
@@ -194,7 +179,7 @@ for setting in settings:
         ax.grid(visible=True, which='major', axis='x', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='major', axis='y', linestyle='-', linewidth=1)
         ax.grid(visible=True, which='minor', axis='y', linestyle='--', linewidth=1)
-        # ax.set_title(f"Total FP Count, {setting_str(setting)}")
+        ax.set_title(f"Total FP Count")
         plt.legend()
         plt.savefig(P.join(OUT_PATH, f"fpcount-overall-{setting}.pdf"))
         plt.pause(0.0001)  # without this, the plots do not show!

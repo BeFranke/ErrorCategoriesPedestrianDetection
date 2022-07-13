@@ -6,27 +6,17 @@ import seaborn as sns
 import numpy as np
 from matplotlib import pyplot as plt
 
-plt.rcParams.update({
-    "text.usetex": True,
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Helvetica"],
-    "font.size": 13
-})
-
-models = ["csp_1", "parallel_0", "parallel_2", "parallel_5", "parallel_01", "parallel_02"]
-order = lambda series: series.map({x: models.index(x) for x in series})
-
 sstr = "Reasonable"
 
 def make_frequency_bar_plot_fn(df, sstr):
     df = pd.melt(df, id_vars=["model"])
-    df = df[np.isin(df.variable, ['FLAMR-crowdOcclusion', "FLAMR-envOcclusion", "FLAMR-clearForeground",
-                                  "FLAMR-clearBackground", "FLAMR-ambiguousOcclusion"])]
+    df = df[np.isin(df.variable, ['FLAMRH-crowdOcclusion', "FLAMRH-envOcclusion", "FLAMRH-clearForeground",
+                                  "FLAMRH-clearBackground", "FLAMRH-ambiguousOcclusion"])]
     varmap = {
         'FLAMR-crowdOcclusion': "Crowd Occlusion",
         "FLAMR-envOcclusion": "Environmental Occlusion",
-        "FLAMR-clearForeground": "Clear Foreground",
-        "FLAMR-clearBackground": "Clear Background",
+        "FLAMR-clearForeground": "Foreground",
+        "FLAMR-clearBackground": "Background",
         "FLAMR-ambiguousOcclusion": "Ambiguous Occlusion"
     }
     df.variable = df.variable.map(lambda x: varmap[x] if x in varmap else x)
@@ -102,15 +92,9 @@ if __name__ == "__main__":
 
 
     df = pd.read_csv(source_path, index_col=None)
-    mmap = {'csp_1': 'CSP', 'parallel_2': 'Hourglass Fusion', 'parallel_0': 'Elimination',
-            'parallel_5': 'ResNeXt Fusion', 'parallel_01': 'FusedDNN-1', 'parallel_02': 'FusedDNN-2'}
-    df = df[df["model"] != "parallel_02"]
-    df = df[df["model"] != "parallel_01"]
 
     df.columns = [s.replace("_", "-") for s in df.columns]
 
-    df.sort_values("model", key=order, inplace=True)
-    df.model = df.model.map(lambda x: mmap[x])
     df[set(df.columns) - {"model"}].astype(float)
     make_frequency_bar_plot_fn(df, sstr)
     make_frequency_bar_plot_fp(df, sstr)

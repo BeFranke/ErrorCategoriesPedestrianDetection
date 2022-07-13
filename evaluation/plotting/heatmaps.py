@@ -1,5 +1,6 @@
 import os
 from os import path as P
+import sys
 
 import numpy as np
 import torch
@@ -7,12 +8,14 @@ from torchvision.transforms import Resize, InterpolationMode, Compose
 from torchvision.transforms import functional as FT
 from matplotlib import pyplot as plt
 
-from evaluation.API.evaluator.coco import COCO
-from evaluation.API.evaluator.coco_api import COCOeval
+sys.path.insert(0, P.abspath(P.join(P.dirname(__file__), P.pardir)))
+
+from API.evaluator.coco import COCO
+from API.evaluator.coco_api import COCOeval
 
 
 TARGET_RES = 250
-titles = ["Environmental Occlusion", "Crowd Occlusion", "Ambiguous Occlusion", "Clear Foreground", "Standard GT"]
+titles = ["Environmental Occlusion", "Crowd Occlusion", "Ambiguous Occlusion", "Foreground", "Background"]
 
 class SquarePad:
     def __call__(self, image):
@@ -83,26 +86,28 @@ def mini_eval(coco, imgId):
 
 
 def main():
-    gt_json = P.abspath(P.join(P.dirname(__file__), "../..", "input", "gt", "val_cityscapes.json.old"))
+    gt_json = P.abspath(P.join(P.dirname(__file__), P.pardir, P.pardir, "input", "gt", "cityscapes_val.json"))
     # this does not really matter, but needs to be passed
-    dt_json = P.abspath(P.join(P.dirname(__file__), "../..", "input", "dt", "std", "csp_1.json"))
+    dt_json = P.abspath(P.join(P.dirname(__file__), P.pardir, P.pardir, "input", "dt", "cityscapes-example", "example_model.json"))
 
     cocoGt = COCO(annotation_file=gt_json)
     cocoDt = cocoGt.loadRes(resFile=dt_json)
     imgIds = sorted(cocoGt.getImgIds())
 
     coco = COCOeval(
-        cocoGt=cocoGt,
-        cocoDt=cocoDt,
-        env_pixel_thrs=0.5,
-        occ_pixel_thr=0.45,
-        crowd_pixel_thrs=0.35,
-        iou_match_thrs=0.5,
-        foreground_thrs=200,
-        ambfactor=0.75,
-        output=None,
-        output_path=None
-    )
+            cocoGt=cocoGt,
+            cocoDt=cocoDt,
+            env_pixel_thrs=0.7,
+            occ_pixel_thr=0.6,
+            crowd_pixel_thrs=0.5,
+            iou_match_thrs=0.5,
+            foreground_thrs=190,
+            ambfactor=0.75,
+            center_aligned_threshold=0.2,
+            reduced_iou_threshold=0.25,
+            output=None,
+            output_path=None
+        )
     coco.params.imgIds = imgIds
     coco._prepare(0)
 

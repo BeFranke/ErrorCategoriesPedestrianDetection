@@ -9,7 +9,8 @@ prepare symlinks and serve webpage
 uses code from https://stackoverflow.com/questions/27977972/how-do-i-setup-a-local-http-server-using-python
 """
 
-out_dir = sorted(os.listdir("../output"))[-1]
+output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, "output"))
+out_dir = sorted(os.listdir(output_folder))[-1]
 
 ap = ArgumentParser()
 ap.add_argument("--dataset_root", default="../input/datasets/cityscapes/leftImg8bit/val")
@@ -21,7 +22,7 @@ try:
 except:
     pass
 
-os.symlink(os.path.join("..", "output", out_dir, "raw"), "eval")
+os.symlink(os.path.join(output_folder, out_dir, "raw"), "eval")
 
 
 def create_index():
@@ -50,7 +51,7 @@ class Serv(BaseHTTPRequestHandler):
                 file_to_open = open(self.path[1:]).read()
                 self.send_response(200)
             except:
-                file_to_open = "File not found"
+                file_to_open = "File not found!"
                 self.send_response(404)
             self.end_headers()
             self.wfile.write(bytes(file_to_open, 'utf-8'))

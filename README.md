@@ -1,8 +1,9 @@
 # Error Categorization for Pedestrian Detection
 
 ## Introduction
+This is the repository to our paper "P. Feifel, B. Franke, A. Raulf, F. Schwenker, F. Bonarens, F. Köster: Revisiting the Evaluation of Deep Neural Networks for Pedestrian Detection", accepted at AISafety 2022 [link to paper to be added].
 
-This repository contains a framework for a fine-grained evaluation of the performance of pedestrian detectors, 
+The repository contains a framework for a fine-grained evaluation of the performance of pedestrian detectors, 
 based on error categorization.
 8 categories are evaluated, 5 for false negatives and 3 for false positives.
 On each category, the **Filtered Log-Average Miss Rate** (FLAMR) is reported.
@@ -152,11 +153,18 @@ evaluated (the file name is used as model name in the results).
 ground truth like specified above. 
 
 
-``CONFIG`` (OPTIONAL):  specifies a path to a config.yaml file giving teh parameters of the evaluation. 
-By default, will use ``evaluation/API/cfg_eval.yaml``, which contains carefully chosen default values.
+``CONFIG`` (OPTIONAL):  specifies a path to a config.yaml file giving the parameters of the evaluation. 
+By default, will use ``evaluation/API/cfg_eval.yaml``, which contains carefully chosen default values (these values were also used for the evaluation in the paper).
 
 ``OUT`` (OPTIONAL):  specifies a path to save the output files. By default, creates a time-stamped folder
 in ``output``.
+
+
+For your convenience, we provide the detection file `input/dt/cityscapes-example/example_model.json` and the ground truth file `input/gt/cityscapes_val.json`. The example detection file contains detections by one of the model of our paper. The example ground truth file is the ground truth used for the citypersons-experiments of our paper.
+
+With these files, it is possible to run an example evaluation by executing
+
+``python3 evaluation/main.py cityscapes-example cityscapes_val.json``
 
 ## Output Format
 
@@ -185,15 +193,21 @@ error visualization tool. ``figures`` is the folder where the plotting scripts w
 
 ## Error Visualization Tool
 
-TODO
+The folder `ErrorVisualizationTool` contains a browser based tool to visualize the predictions of a model and the ground truth, categorized by the proposed error categories. 
+
+**For the tool to work, the images of the used data set need to be provided. Please place your dataset (e.g. citypersons) in the input folder as described in the Section "Datasets-folder"!**
+
+*After* running an evaluation as described in Section "Running an evaluation", the visualization tool can be started:
+
+`cd ErrorVisualizationTool && python3 run.py`
+
+If a browser supported by python's `webbrowser` package can be found on your system, this will open your webbrowser and show you the results of your last executed evaluation.
+If no webbrowser opens, manually navigate to `http://localhost:8080` to view the results.
+
+The tool provides buttons to navigate through the dataset, as well as a slider to select the confidence threshold for the model and a dropdown to switch between models, if multiple entries can be found in the relevant `results.csv`.
 
 ## Plotting Scripts
 
-TODO
-
-## Parameters
-
-TODO
-
+The folder `evaluation/plotting` contains various scripts to generate different kinds of plots from the results of the most recently run evaluation. These scripts are geared towards CityPersons and will need adaptions for other data sets.
 
         

@@ -71,7 +71,7 @@ class COCOeval:
     # Licensed under the Simplified BSD License [see coco/license.txt]
     def __init__(self, cocoGt, cocoDt, env_pixel_thrs, occ_pixel_thr, crowd_pixel_thrs,
             iou_match_thrs, foreground_thrs, ambfactor, center_aligned_threshold, reduced_iou_threshold,
-            output, output_path, iouType='bbox'):
+            output, output_path, iouType='bbox', split="val"):
         '''
         Initialize CocoEval using coco APIs for gt and dt
         :param cocoGt: coco object with ground truth annotations
@@ -140,6 +140,8 @@ class COCOeval:
                 'dts': dict()
             }
             update_recursive(self.output, update)
+        
+        self.split = split
 
     def _prepare(self, id_setup):
         '''
@@ -332,7 +334,7 @@ class COCOeval:
             self.segm_path, "cityscapes", "gtFine", self.split,
             # exploiting the fact that the folder name (the city) is contained in the file name
             img_name.split("_")[0],
-            img_name.replace("_leftImg8bit", "_gtFine_instanceIds.png")
+            img_name.replace("_leftImg8bit.png", "_gtFine_instanceIds.png")
         )
         return np.asarray(Image.open(isegm_path))
 
