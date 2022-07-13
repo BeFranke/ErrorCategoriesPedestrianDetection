@@ -4,12 +4,15 @@ input/gt/*
 !input/gt/kia_bit_04_enriched_gt.json
 !input/dt/cityscapes/csp_2_2021_09_10_084034_cityscapes_val_dt.json
 !input/dt/kia/
+!input/dt/cityscapes
 input/datasets/*
 output/*
 *.png
 !/**/.gitkeep
+ErrorVisualizationTool/dataset
+ErrorVisualizationTool/eval
 
-# Ignores for PyCharm and other JetBrains IDEs
 .idea/
 **/__pycache__/*
 *.pyc
+.vscode

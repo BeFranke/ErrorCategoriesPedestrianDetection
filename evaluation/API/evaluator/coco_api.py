@@ -12,6 +12,7 @@ from easydict import EasyDict as edict
 # from . import mask as maskUtils
 import copy
 import scipy.io as sio
+from PIL import Image
 
 from ..utils.utils import update_recursive
 
@@ -1118,7 +1119,7 @@ class COCOeval:
                 print(p.fppiThrs)
                 print(np.squeeze(self.eval['confThrs']))
                 print(f"LAMR-check value: {la}")
-                print(f"Clear FLAMR over Ghost Detections: {flamr_clear_ghost}")
+                # print(f"Clear FLAMR over Ghost Detections: {flamr_clear_ghost}")
 
             # res_file.write(iStr.format(titleStr, typeStr,setupStr, iouStr, heightStr, occlStr, mean_s*100))
             # res_file.write(str(abs(mean_s) * 100))
