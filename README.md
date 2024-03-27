@@ -1,7 +1,7 @@
 # Error Categorization for Pedestrian Detection
 
 ## Introduction
-This is the repository to our paper "P. Feifel, B. Franke, A. Raulf, F. Schwenker, F. Bonarens, F. Köster: Revisiting the Evaluation of Deep Neural Networks for Pedestrian Detection", accepted at AISafety 2022 [link to paper to be added].
+This is the repository to our paper "P. Feifel, B. Franke, A. Raulf, F. Schwenker, F. Bonarens, F. Köster: Revisiting the Evaluation of Deep Neural Networks for Pedestrian Detection", accepted at AISafety 2022 (https://ceur-ws.org/Vol-3215/11.pdf).
 
 The repository contains a framework for a fine-grained evaluation of the performance of pedestrian detectors, 
 based on error categorization.
